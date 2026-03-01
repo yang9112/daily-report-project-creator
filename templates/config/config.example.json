@@ -1,0 +1,24 @@
+{
+  "database": {
+    "path": "./data/tech_daily.db"
+  },
+  "llm": {
+    "provider": "openai",
+    "api_key": "your-openai-api-key-here",
+    "base_url": "https://api.openai.com/v1",
+    "model": "gpt-3.5-turbo"
+  },
+  "digest": {
+    "limit_articles": 20,
+    "output_dir": "./output",
+    "template": "default"
+  },
+  "collect": {
+    "timeout": 10000,
+    "user_agent": "Tech-Daily-Digest/1.0"
+  },
+  "process": {
+    "batch_size": 10,
+    "delay_between_requests": 1000
+  }
+}

@@ -194,9 +194,7 @@ if (require.main === module) {
         process.exit(1)
       }
 
-      const configData = fs.readFileSync(configPath, 'utf8')
-      const config = JSON.parse(configData)
-      batchCreator.batchCreateFromConfig(config)
+      batchCreator.batchCreateFromConfig(configPath)
         .then(() => {
           process.exit(0)
         })

@@ -1,0 +1,24 @@
+{
+  "sources": [
+    {
+      "name": "美团技术团队",
+      "feed_url": "https://tech.meituan.com/feed",
+      "is_active": true
+    },
+    {
+      "name": "阿里技术",
+      "feed_url": "https://developer.aliyun.com/rss/articles/tech.rss",
+      "is_active": true
+    },
+    {
+      "name": "腾讯技术",
+      "feed_url": "https://cloud.tencent.com/developer/rss/articles/tech",
+      "is_active": true
+    },
+    {
+      "name": "字节跳动技术",
+      "feed_url": "https://tech.bytedance.com/rss",
+      "is_active": true
+    }
+  ]
+}

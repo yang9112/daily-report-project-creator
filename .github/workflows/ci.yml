@@ -166,7 +166,7 @@ jobs:
         mkdir -p /tmp/perf-test
         cd /tmp/perf-test
         node -e "
-        const creator = require('../scripts/create-project');
+        const creator = require('/home/runner/work/daily-report-project-creator/daily-report-project-creator/scripts/create-project');
         const test = async () => {
           const startMemory = process.memoryUsage().heapUsed;
           await new creator().createProject('perf-test', { createGitHub: false });

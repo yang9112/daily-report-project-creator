@@ -13,7 +13,7 @@ global.TEST_CONFIG = {
 beforeAll(() => {
   // 设置环境变量
   process.env.NODE_ENV = 'test'
-  process.env.OPENAI_API_KEY = 'test-api-key'
+  process.env.OPENAI_API_KEY = 'sk-test123456789012345678901234567890123456789012345678'
 
   // 确保测试时不会创建真实的GitHub仓库
   process.env.TEST_MODE = 'true'

@@ -1,0 +1,31 @@
+{
+  "name": "tech-daily-digest",
+  "version": "1.0.0",
+  "description": "技术博客自动采集和AI摘要日报系统",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "collect": "node src/collector.js",
+    "process": "node src/processor.js",
+    "digest": "node src/generator.js",
+    "setup": "node src/database.js --init",
+    "test": "jest"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "feedparser": "^2.2.10",
+    "sqlite3": "^5.1.6",
+    "openai": "^4.20.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "keywords": [
+    "tech-blog",
+    "daily-digest",
+    "ai-summary",
+    "rss"
+  ],
+  "author": "Daily Digest Team",
+  "license": "MIT"
+}
