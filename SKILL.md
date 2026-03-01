@@ -1,12 +1,12 @@
 ---
 name: daily-report-skill-creator
-description: 基于现有技术博客日报功能，创建开源GitHub项目的完整工具链。支持初始化项目结构、配置GitHub仓库、生成规范文档，并遵循Agent.md的仓库规范进行内容管理。
+description: 以技术博客日报系统为基础，提供完整的开源项目创建和发布工具链。支持从现有daily-report技能快速复制、定制、打包并发布到GitHub，遵循KISS原则和Agent.md仓库规范，实现一键式项目初始化和部署。
 ---
 
 # 日报技能开源项目创建器 (Daily Report Skill Creator)
 
 ## 🎯 核心价值
-将技术博客日报系统开源化，提供从技能复制到GitHub项目发布的完整工作流程。
+以技术博客日报系统为基础，提供完整的开源项目创建和发布工具链，遵循KISS原则设计。
 
 ## 🚀 核心特性
 - **项目初始化**: 基于现有tech-daily-digest创建新项目结构
