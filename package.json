@@ -1,18 +1,23 @@
 {
-  "name": "github-project-creator",
+  "name": "daily-report-project-creator",
   "version": "1.0.0",
-  "description": "基于现有技术博客日报功能，创建开源GitHub项目的完整工具链",
+  "description": "将现有的技术博客日报技能打包成开源项目的完整工具",
   "main": "scripts/create-project.js",
   "bin": {
     "daily-report-create": "scripts/create-project.js",
     "daily-report-batch": "scripts/batch-create.js"
   },
   "scripts": {
-    "test": "node scripts/test.js",
-    "lint": "echo 'Linting...'",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint scripts/ tests/ --fix",
+    "validate": "node scripts/validate.js",
     "create": "node scripts/create-project.js",
     "batch": "node scripts/batch-create.js",
-    "example": "node scripts/batch-create.js config"
+    "example": "node scripts/batch-create.js config",
+    "precommit": "npm run lint && npm run test",
+    "posttest": "npm run validate"
   },
   "keywords": [
     "daily-report",
@@ -21,21 +26,63 @@
     "automation",
     "github",
     "project-creator",
-    "cli-tool"
+    "cli-tool",
+    "skill-packaging"
   ],
-  "author": "大白 <dabai@example.com>",
+  "author": "大白 <dabai@openclaw.ai>",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/yang9112/daily-report-project-creator"
   },
   "dependencies": {
-    "inquirer": "^9.2.0",
     "axios": "^1.6.0",
-    "commander": "^11.0.0"
+    "commander": "^11.0.0",
+    "inquirer": "^9.2.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "eslint": "^8.55.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "@types/jest": "^29.5.8",
+    "supertest": "^6.3.3"
   },
   "engines": {
     "node": ">=14.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"],
+    "testMatch": [
+      "<rootDir>/tests/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "scripts/**/*.js",
+      "!scripts/test.js",
+      "!**/node_modules/**"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "testTimeout": 30000
+  },
+  "eslintConfig": {
+    "extends": "standard",
+    "env": {
+      "node": true,
+      "jest": true
+    },
+    "rules": {
+      "no-console": "warn",
+      "prefer-const": "error",
+      "no-var": "error"
+    }
   },
   "type": "commonjs"
 }
