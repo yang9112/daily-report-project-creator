@@ -650,6 +650,24 @@ jobs:
       
     - name: Lint code
       run: npm run lint
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Validate project
+      run: npm run validate
 `
 
     fs.writeFileSync(path.join(workflowDir, 'ci.yml'), ciWorkflow)
