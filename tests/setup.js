@@ -5,6 +5,17 @@ const fs = require('fs')
 const path = require('path')
 /* eslint-enable no-console */
 
+// 在测试环境下完全抑制console.log输出
+if (process.env.NODE_ENV === 'test') {
+  const originalConsoleLog = console.log
+  console.log = (...args) => {
+    // 只在显式设置时才输出日志
+    if (process.env.SHOW_TEST_LOGS === 'true') {
+      originalConsoleLog(...args)
+    }
+  }
+}
+
 // 全局测试配置
 global.TEST_CONFIG = {
   timeout: 30000, // 30秒超时
@@ -19,6 +30,9 @@ beforeAll(() => {
 
   // 确保测试时不会创建真实的GitHub仓库
   process.env.TEST_MODE = 'true'
+
+  // 抑制Git警告消息
+  process.env.GIT_TERMINAL_PROMPT = '0'
 })
 
 // 每个测试前的清理

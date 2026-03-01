@@ -662,9 +662,14 @@ jobs:
     console.log('🔧 初始化Git仓库...')
 
     try {
-      execSync('git init', { cwd: projectPath })
-      execSync('git add .', { cwd: projectPath })
-      execSync('git commit -m "🎉 初始化日报项目"', { cwd: projectPath })
+      // 使用 --quiet ���数来抑制Git警告
+      const gitOptions = { cwd: projectPath, stdio: process.env.NODE_ENV === 'test' ? 'pipe' : 'inherit' }
+      
+      execSync('git init --quiet', gitOptions)
+      execSync('git config user.email "test@example.com"', gitOptions)
+      execSync('git config user.name "Test User"', gitOptions)
+      execSync('git add .', gitOptions)
+      execSync('git commit -m "🎉 初始化日报项目"', gitOptions)
       console.log('  ✅ Git仓库初始化完成')
     } catch (error) {
       console.log('  ⚠️ Git初始化失败:', error.message)

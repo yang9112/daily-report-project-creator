@@ -53,27 +53,6 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "jest": {
-    "testEnvironment": "node",
-    "setupFilesAfterEnv": [
-      "<rootDir>/tests/setup.js"
-    ],
-    "testMatch": [
-      "<rootDir>/tests/**/*.test.js"
-    ],
-    "collectCoverageFrom": [
-      "scripts/**/*.js",
-      "!scripts/test.js",
-      "!**/node_modules/**"
-    ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "html"
-    ],
-    "testTimeout": 30000
-  },
   "eslintConfig": {
     "extends": "standard",
     "env": {
