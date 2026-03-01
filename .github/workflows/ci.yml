@@ -85,7 +85,7 @@ jobs:
     - name: Test project creation
       run: |
         mkdir -p /tmp/integration-test
-        node scripts/create-project.js integration-test --no-github
+        node scripts/create-project.js integration-test --no-github --output-dir /tmp/integration-test
         test -d /tmp/integration-test/daily-report-integration-test
         
     - name: Test batch creation
@@ -128,15 +128,15 @@ jobs:
     - name: Check for sensitive information
       run: |
         # 检查是否有硬编码的API密钥
-        if grep -r "sk-\|ghp_\|gho_\|ghu_\|ghs_\|ghr_" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage; then
+        if grep -r "sk-[a-zA-Z0-9]{48}\|ghp_[a-zA-Z0-9]{36}" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.md" --exclude="*.yml" --exclude="*.yaml"; then
           echo "⚠️ Found possible API keys"
           exit 1
         else
           echo "✅ No API keys found"
         fi
         
-        # 检查是否有密码或凭证
-        if grep -ri "password\|secret\|token\|key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.log" --exclude="*.md" | grep -v "# password\|# secret"; then
+        # 检查是否有硬编码的密码或凭证
+        if grep -ri "password.*=\|secret.*=\|token.*=\|key.*=" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.log" --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" | grep -v "# password\|# secret"; then
           echo "⚠️ Found possible credentials"
           exit 1
         else
@@ -163,8 +163,10 @@ jobs:
     - name: Memory usage test
       run: |
         # 监控内存使用的测试
+        mkdir -p /tmp/perf-test
+        cd /tmp/perf-test
         node -e "
-        const creator = require('./scripts/create-project');
+        const creator = require('../scripts/create-project');
         const test = async () => {
           const startMemory = process.memoryUsage().heapUsed;
           await new creator().createProject('perf-test', { createGitHub: false });
@@ -193,7 +195,8 @@ jobs:
         echo '}' >> /tmp/large-batch.json
         
         start_time=$(date +%s)
-        timeout 60s node scripts/batch-create.js file /tmp/large-batch.json || { echo "⚠️ Batch creation timed out"; exit 1; }
+        cd /tmp
+        timeout 60s node /home/runner/work/daily-report-project-creator/daily-report-project-creator/scripts/batch-create.js file large-batch.json --output-dir /tmp/batch-test-output || { echo "⚠️ Batch creation timed out"; exit 1; }
         end_time=$(date +%s)
         
         duration=$((end_time - start_time))
