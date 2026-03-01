@@ -160,6 +160,21 @@ class DailyReportProjectCreator {
       packageJson = JSON.parse(fs.readFileSync(basePackagePath, 'utf8'))
     }
 
+    // 确保基础字段存在
+    if (!packageJson.version) {
+      packageJson.version = '1.0.0'
+    }
+    if (!packageJson.main) {
+      packageJson.main = 'src/index.js'
+    }
+    if (!packageJson.scripts) {
+      packageJson.scripts = {
+        start: 'node src/index.js',
+        test: 'jest',
+        lint: 'eslint src/ --fix'
+      }
+    }
+
     // 更新项目信息
     const projectName = path.basename(projectPath).replace('daily-report-', '')
     packageJson.name = `daily-report-${projectName}`

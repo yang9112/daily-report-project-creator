@@ -130,7 +130,11 @@ console.error = (...args) => {
   // 在测试环境下，某些错误是预期的
   const message = args.join(' ')
   if (process.env.SHOW_TEST_ERRORS !== 'true') {
-    if (message.includes('Permission denied') || message.includes('File exists')) {
+    if (
+      message.includes('Permission denied') || 
+      message.includes('File exists') ||
+      message.includes('Creation failed')
+    ) {
       return
     }
   }
