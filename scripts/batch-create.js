@@ -187,7 +187,7 @@ if (require.main === module) {
         });
       break;
       
-    case 'file':
+    case 'file': {
       const configPath = args[1];
       if (!configPath) {
         console.log('用法: node batch-create.js file <config-path>');
@@ -203,6 +203,7 @@ if (require.main === module) {
           process.exit(1);
         });
       break;
+    }
       
     default:
       console.log('🚀 批量日报项目创建器');

@@ -252,8 +252,9 @@ class ProjectValidator {
 
         // 检查是否可以解析为模块
         try {
-          // 基本的语法检查
-          new Function(content);
+          // 基本的语法检查 - 使用更安全的方式
+          const vm = require('vm');
+          new vm.Script(content);
           console.log(`  ✅ ${scriptFile} (语法正确)`);
         } catch (syntaxError) {
           console.log(`  ❌ ${scriptFile} (语法错误: ${syntaxError.message})`);

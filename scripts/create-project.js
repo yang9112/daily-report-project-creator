@@ -14,9 +14,36 @@ class DailyReportProjectCreator {
   }
 
   /**
+   * 验证项目名称
+   */
+  validateProjectName(projectName) {
+    if (!projectName || typeof projectName !== 'string') {
+      throw new Error('项目名称不能为空且必须是字符串');
+    }
+    
+    if (projectName.trim().length === 0) {
+      throw new Error('项目名称不能为空');
+    }
+    
+    if (projectName.length > 50) {
+      throw new Error('项目名称长度不能超过50个字符');
+    }
+    
+    // 检查是否包含非法字符
+    if (!/^[a-zA-Z0-9_-]+$/.test(projectName)) {
+      throw new Error('项目名称只能包含字母、数字、下划线和连字符');
+    }
+    
+    return true;
+  }
+
+  /**
    * 创建新项目
    */
   async createProject(projectName, options = {}) {
+    // 验证项目名称
+    this.validateProjectName(projectName);
+    
     console.log(`🚀 创建日报项目: ${projectName}`);
     
     const projectPath = path.join(this.outputDir, `daily-report-${projectName}`);
@@ -83,14 +110,31 @@ class DailyReportProjectCreator {
     ];
     
     coreFiles.forEach(file => {
-      const srcPath = path.join(this.baseSkillPath, file);
+      // 优先从tech-daily-digest技能目录复制
+      const skillPath = path.join(this.baseSkillPath, file);
+      
+      // 如果不存在，从项目模板目录复制
+      const templatePath = path.join(__dirname, '../templates/src', file);
+      
       const destPath = path.join(projectPath, 'src', file);
       
-      if (fs.existsSync(srcPath)) {
-        fs.copyFileSync(srcPath, destPath);
-        console.log(`  ✅ 复制: ${file}`);
+      let srcPath = null;
+      if (fs.existsSync(skillPath)) {
+        srcPath = skillPath;
+        console.log(`  ✅ 从技能目录复制: ${file}`);
+      } else if (fs.existsSync(templatePath)) {
+        srcPath = templatePath;
+        console.log(`  ✅ 从模板目录复制: ${file}`);
       } else {
-        console.log(`  ⚠️  跳过: ${file} (文件不存在)`);
+        console.log(`  ⚠️  跳过: ${file} (源文件不存在)`);
+        return;
+      }
+      
+      try {
+        fs.copyFileSync(srcPath, destPath);
+        console.log(`    📁 目标: src/${file}`);
+      } catch (error) {
+        console.log(`  ❌ 复制失败: ${file} - ${error.message}`);
       }
     });
 
@@ -205,7 +249,7 @@ LOG_FILE=./logs/app.log
   }
 
   /**
-   * 生成文档
+   * 生成���档
    */
   generateDocumentation(projectPath, projectName) {
     console.log('📚 生成项目文档...');
@@ -218,11 +262,14 @@ LOG_FILE=./logs/app.log
     const agentMd = this.generateAgentMd();
     fs.writeFileSync(path.join(projectPath, 'Agent.md'), agentMd);
     
-    // 3. .gitignore
+    // 3. SKILL.md (技能描述)
+    this.copySkillMd(projectPath, projectName);
+    
+    // 4. .gitignore
     const gitignore = this.generateGitignore();
     fs.writeFileSync(path.join(projectPath, '.gitignore'), gitignore);
     
-    // 4. GitHub Actions
+    // 5. GitHub Actions
     this.createGitHubActions(projectPath);
   }
 
@@ -445,6 +492,74 @@ dist/
 build/
 coverage/
 .nyc_output/
+`;
+  }
+
+  /**
+   * 复制SKILL.md文件
+   */
+  copySkillMd(projectPath, projectName) {
+    try {
+      const skillMdPath = path.join(__dirname, '..', 'SKILL.md');
+      if (fs.existsSync(skillMdPath)) {
+        let skillMdContent = fs.readFileSync(skillMdPath, 'utf8');
+        
+        // 替换项目名称
+        skillMdContent = skillMdContent.replace(/日报项目创建器/g, `日报项目 - ${projectName}`);
+        skillMdContent = skillMdContent.replace(/daily-report-project-creator/g, `daily-report-${projectName}`);
+        
+        fs.writeFileSync(path.join(projectPath, 'SKILL.md'), skillMdContent);
+        console.log('  ✅ SKILL.md 已复制');
+      } else {
+        // 如果SKILL.md不存在，生成一个基本的
+        const basicSkillMd = this.generateBasicSkillMd(projectName);
+        fs.writeFileSync(path.join(projectPath, 'SKILL.md'), basicSkillMd);
+        console.log('  ✅ SKILL.md 已生成');
+      }
+    } catch (error) {
+      console.log('  ⚠️ SKILL.md 生成失败:', error.message);
+    }
+  }
+
+  /**
+   * 生成基本的SKILL.md
+   */
+  generateBasicSkillMd(projectName) {
+    return `# SKILL.md — daily-report-${projectName}
+
+## Description
+
+基于AI摘要的技术博客自动化日报系统 - ${projectName}
+
+## Installation
+
+\`\`\`bash
+npm install
+\`\`\`
+
+## Usage
+
+\`\`\`bash
+node index.js
+\`\`\`
+
+## Configuration
+
+复制 \`config/config.example.json\` 为 \`config/config.json\` 并配置必要参数。
+
+## Features
+
+- 智能采集技术博客文章
+- AI生成文章摘要
+- 自动去除重复内容
+- 支持多种输出格式
+- 轻量级部署方案
+
+## Repository
+
+- URL: https://github.com/yang9112/daily-report-${projectName}
+- Default branch: master
+- Main language: JavaScript
 `;
   }
 

@@ -91,6 +91,8 @@ describe('DailyReportProjectCreator', () => {
       const projectPath = path.join(TEST_OUTPUT_DIR, 'daily-report-test');
       const projectName = 'test';
       
+      // 首先创建目录结构
+      creator.createProjectStructure(projectPath, projectName);
       creator.generateConfigFiles(projectPath, projectName, {});
       
       // 验证配置文件是否存在
@@ -103,6 +105,8 @@ describe('DailyReportProjectCreator', () => {
       const projectPath = path.join(TEST_OUTPUT_DIR, 'daily-report-test');
       const projectName = 'test';
       
+      // 首先创建目录结构
+      creator.createProjectStructure(projectPath, projectName);
       creator.generateConfigFiles(projectPath, projectName, {});
       
       // 验证config.example.json
@@ -125,6 +129,8 @@ describe('DailyReportProjectCreator', () => {
       const projectPath = path.join(TEST_OUTPUT_DIR, 'daily-report-test');
       const projectName = 'test';
       
+      // 首先创建目录结构
+      creator.createProjectStructure(projectPath, projectName);
       creator.generateDocumentation(projectPath, projectName);
       
       // 验证文档文件
@@ -137,6 +143,8 @@ describe('DailyReportProjectCreator', () => {
       const projectPath = path.join(TEST_OUTPUT_DIR, 'daily-report-test');
       const projectName = 'test';
       
+      // 首先创建目录结构
+      creator.createProjectStructure(projectPath, projectName);
       creator.generateDocumentation(projectPath, projectName);
       
       const readmeContent = fs.readFileSync(path.join(projectPath, 'README.md'), 'utf8');
@@ -147,6 +155,8 @@ describe('DailyReportProjectCreator', () => {
       const projectPath = path.join(TEST_OUTPUT_DIR, 'daily-report-test');
       const projectName = 'test';
       
+      // 首先创建目录结构
+      creator.createProjectStructure(projectPath, projectName);
       creator.generateDocumentation(projectPath, projectName);
       
       expect(fs.existsSync(path.join(projectPath, '.github', 'workflows', 'daily-digest.yml'))).toBe(true);

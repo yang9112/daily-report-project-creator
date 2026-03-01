@@ -46,12 +46,32 @@ afterAll(() => {
   });
 });
 
-// 辅助函数：创建临时目录
+// 辅助函数：创建临��目录
 global.createTempDir = function(name) {
   const tempDir = path.join('/tmp', `test-${name}-${Date.now()}`);
   fs.mkdirSync(tempDir, { recursive: true });
   global.TEST_CONFIG.tempDirs.push(tempDir);
   return tempDir;
+};
+
+// 辅助函数：创建项目测试目录结构
+global.createProjectTestDir = function(projectPath) {
+  const directories = [
+    'src',
+    'config',
+    'data',
+    'output',
+    'scripts',
+    'docs',
+    'tests',
+    '.github/workflows'
+  ];
+  
+  directories.forEach(dir => {
+    fs.mkdirSync(path.join(projectPath, dir), { recursive: true });
+  });
+  
+  return projectPath;
 };
 
 // 辅助函数：模拟文件系统操作
