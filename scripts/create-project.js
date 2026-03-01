@@ -17,6 +17,16 @@ class DailyReportProjectCreator {
    * 创建新项目
    */
   async createProject(projectName, options = {}) {
+    // 验证项目名称
+    if (!projectName || typeof projectName !== 'string' || projectName.trim().length === 0) {
+      throw new Error('项目名称��能为空');
+    }
+    
+    if (!/^[a-zA-Z0-9-_]+$/.test(projectName.trim())) {
+      throw new Error('项目名称只能包含字母、数字、连字符和下划线');
+    }
+    
+    projectName = projectName.trim();
     console.log(`🚀 创建日报项目: ${projectName}`);
     
     const projectPath = path.join(this.outputDir, `daily-report-${projectName}`);
@@ -214,16 +224,72 @@ LOG_FILE=./logs/app.log
     const readme = this.generateReadme(projectName);
     fs.writeFileSync(path.join(projectPath, 'README.md'), readme);
     
-    // 2. Agent.md (仓库规范)
+    // 2. SKILL.md (技能说明)
+    const skillMd = this.generateSkillMd(projectName);
+    fs.writeFileSync(path.join(projectPath, 'SKILL.md'), skillMd);
+    
+    // 3. Agent.md (仓库规范)
     const agentMd = this.generateAgentMd();
     fs.writeFileSync(path.join(projectPath, 'Agent.md'), agentMd);
     
-    // 3. .gitignore
+    // 4. .gitignore
     const gitignore = this.generateGitignore();
     fs.writeFileSync(path.join(projectPath, '.gitignore'), gitignore);
     
-    // 4. GitHub Actions
+    // 5. GitHub Actions
     this.createGitHubActions(projectPath);
+  }
+
+  /**
+   * 生成SKILL.md
+   */
+  generateSkillMd(projectName) {
+    return `---
+name: ${projectName}
+description: 基于KISS原则设计的技术博客自动采集和AI摘要系统，每日生成高质量技术阅读简报。
+---
+
+# 技术博客日报系统 (TechDaily Digest) 📰
+
+## 🎯 核心价值
+基于KISS原则设计的技术博��自动采集和AI摘要系统，每日生成高质量技术阅读简报。
+
+## 🚀 核心特性
+- **轻量级架构**: SQLite数据库，零配置部署
+- **智能去重**: 基于文章链接自动去重
+- **AI摘要**: 自动提取核心观点和关键词
+- **模块化设计**: 采集、处理、分发解耦
+- **容错机制**: 单源失败不影响整体运行
+
+## 🏗️ 系统架构
+\`\`\`
+配置文件 → 采集器 → SQLite数据库 → 处理器 → AI摘要 → 日报生成
+\`\`\`
+
+## 📊 数据库设计
+### sources表 - 订阅源管理
+- id (主键) | name (博客名称) | feed_url (RSS地址) | last_checked | is_active
+
+### articles表 - 文章管理
+- id (主键) | title (标题) | link (链接) | summary (摘要) | published_date | source_id
+
+### digests表 - 日报管理
+- id (主键) | title (标题) | content (内容) | summary (总摘要) | created_at
+
+## 🔧 核心功能
+1. **RSS/Feed采集**: 支持RSS、Atom等标准格式
+2. **内容解析**: 自动提取标题、链接、发布时间
+3. **AI智能摘要**: 提取核心观点，生成高质量摘要
+4. **去重检测**: 基于链接哈希避免重复
+5. **日报生成**: 汇总当天的优质内容
+6. **自动化定时**: 支持cron定时任务
+
+## 🎯 用户价值
+- **信息过滤**: 从海量信息中筛选优质内容
+- **时间节约**: AI提炼核心观点，快速掌握要点
+- **知识获取**: 每日精选技术干货，持续学习
+- **工作辅助**: 了解行业动态，把握技术趋势
+`;
   }
 
   /**

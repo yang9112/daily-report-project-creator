@@ -252,8 +252,9 @@ class ProjectValidator {
 
         // 检查是否可以解析为模块
         try {
-          // 基本的语法检查
-          new Function(content);
+          // 使用child_process进行语法检查
+          const { execSync } = require('child_process');
+          execSync(`node -c "${scriptPath}"`, { stdio: 'pipe' });
           console.log(`  ✅ ${scriptFile} (语法正确)`);
         } catch (syntaxError) {
           console.log(`  ❌ ${scriptFile} (语法错误: ${syntaxError.message})`);

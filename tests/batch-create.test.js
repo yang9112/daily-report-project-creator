@@ -270,6 +270,13 @@ describe('BatchProjectCreator', () => {
 
 // 内存和资源测试
 describe('Resource Management Tests', () => {
+  beforeEach(() => {
+    // 确保测试目录存在
+    if (!fs.existsSync(TEST_CONFIG_DIR)) {
+      fs.mkdirSync(TEST_CONFIG_DIR, { recursive: true });
+    }
+  });
+
   test('应该正确处理内存使用', async () => {
     const batchCreator = new BatchProjectCreator();
     
