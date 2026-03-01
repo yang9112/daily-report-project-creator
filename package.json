@@ -1,0 +1,41 @@
+{
+  "name": "github-project-creator",
+  "version": "1.0.0",
+  "description": "基于现有技术博客日报功能，创建开源GitHub项目的完整工具链",
+  "main": "scripts/create-project.js",
+  "bin": {
+    "daily-report-create": "scripts/create-project.js",
+    "daily-report-batch": "scripts/batch-create.js"
+  },
+  "scripts": {
+    "test": "node scripts/test.js",
+    "lint": "echo 'Linting...'",
+    "create": "node scripts/create-project.js",
+    "batch": "node scripts/batch-create.js",
+    "example": "node scripts/batch-create.js config"
+  },
+  "keywords": [
+    "daily-report",
+    "tech-blog",
+    "ai-summary",
+    "automation",
+    "github",
+    "project-creator",
+    "cli-tool"
+  ],
+  "author": "大白 <dabai@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yang9112/daily-report-project-creator"
+  },
+  "dependencies": {
+    "inquirer": "^9.2.0",
+    "axios": "^1.6.0",
+    "commander": "^11.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "type": "commonjs"
+}

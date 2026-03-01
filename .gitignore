@@ -1,0 +1,71 @@
+# 依赖
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 环境配置
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 配置文件（含密钥）
+config/config.json
+config/sources.json
+
+# 生成的项目和输出
+output/
+daily-report-*/
+
+# 日志文件
+logs/
+*.log
+
+# 临时文件和缓存
+tmp/
+cache/
+.DS_Store
+Thumbs.db
+
+# 编辑器配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 运行时文件
+*.pid
+*.seed
+*.pid.lock
+
+# 覆盖率报告
+coverage/
+.nyc_output/
+
+# 构建产物
+dist/
+build/
+
+# 测试文件
+.jest/
+
+# 操作历史
+.history/
+
+# 本地配置
+.local
+.config
+.personal
+
+# 备份文件
+*.bak
+*.backup
+*.old
