@@ -9,8 +9,8 @@ const { execSync } = require('child_process')
  */
 class DailyReportProjectCreator {
   constructor () {
-    this.baseSkillPath = '/root/workspace/skills/tech-daily-digest'
-    this.outputDir = '/root/workspace/github-projects'
+    this.baseSkillPath = path.join(__dirname, '../templates')
+    this.outputDir = process.env.OUTPUT_DIR || path.join(process.cwd(), 'output')
   }
 
   /**
@@ -619,7 +619,7 @@ jobs:
         if git diff --staged --quiet; then
           echo "No changes to commit"
         else
-          git commit -m "🤖 Auto-generate daily digest - \$(date +'%Y-%m-%d')"
+          git commit -m "🤖 Auto-generate daily digest - $(date +'%Y-%m-%d')"
           git push
         fi
 `

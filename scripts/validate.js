@@ -250,10 +250,10 @@ class ProjectValidator {
         try {
           // 去除shebang再进行语法检查
           const contentWithoutShebang = content.replace(/^#!.*/, '')
-          
+
           // 检查是否可以解析为模块
           // 简单的语法检查，避免使用Function构造函数
-          const ast = require('acorn').parse(contentWithoutShebang, {
+          require('acorn').parse(contentWithoutShebang, {
             ecmaVersion: 2020,
             sourceType: 'module'
           })
@@ -265,7 +265,7 @@ class ProjectValidator {
               // 检查基本的语法结构
               const bracketCount = (content.match(/\(/g) || []).length - (content.match(/\)/g) || []).length
               const braceCount = (content.match(/\{/g) || []).length - (content.match(/\}/g) || []).length
-              
+
               if (bracketCount === 0 && braceCount === 0 && content.trim()) {
                 console.log(`  ✅ ${scriptFile} (语法基本正确)`)
               } else {
