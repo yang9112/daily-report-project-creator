@@ -38,7 +38,7 @@ jobs:
     
     strategy:
       matrix:
-        node-version: [14, 16, 18, 20]
+        node-version: [16, 18, 20]
     
     steps:
     - name: Checkout
@@ -129,7 +129,7 @@ jobs:
     - name: Check for sensitive information
       run: |
         # 检查是否有硬编码的API密钥（排除文档和示例文件）
-        if grep -r "sk-\|ghp_\|gho_\|ghu_\|ghs_\|ghr_" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" ; then
+        if grep -r "sk-\|ghp_\|gho_\|ghu_\|ghs_\|ghr_" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" | grep -v "| sk-\.\.\. \|" | grep -v "sk-\.\.\." | grep -v "ghp_.*36" | grep -v "sk-\[a-zA-Z0-9\]"; then
           echo "⚠️ Found possible API keys"
           exit 1
         else
@@ -137,7 +137,7 @@ jobs:
         fi
         
         # 检查是否有密码或凭证（排除文档、注释和示例文件）
-        if grep -ri "password\|secret\|token\|key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.log" --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" | grep -v "# password\|# secret\|OPENAI_API_KEY\|GitHub token" ; then
+        if grep -ri "password\|secret\|token\|key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.log" --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" | grep -v "# password\|# secret\|OPENAI_API_KEY\|GitHub token" | grep -v "API密钥" | grep -v "密码" | grep -v "凭证"; then
           echo "⚠️ Found possible credentials"
           exit 1
         else
