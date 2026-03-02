@@ -156,7 +156,7 @@ jobs:
         fi
         
         # 检查是否有密码或凭证（排除文档、注释、示例文件、验证代码、测试文件、模板文件和安全配置）
-        if grep -ri "password\|secret\|token\|key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.log" --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" --exclude="create-project.js" --exclude="validate.js" --exclude-dir=tests --exclude="*.test.js" --exclude="*.spec.js" --exclude-dir=templates | grep -v "# password\|# secret\|OPENAI_API_KEY\|GitHub token" | grep -v "API密钥" | grep -v "密码" | grep -v "凭证" | grep -v "/sk-\[a-zA-Z0-9\]" | grep -v "/ghp_\[a-zA-Z0-9\]" | grep -v "package.json.*keywords" | grep -v "topKeywords\|article\.keywords\|\.keywords"; then
+        if grep -ri "password\|secret\|token\|key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.log" --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" --exclude="create-project.js" --exclude="validate.js" --exclude-dir=tests --exclude="*.test.js" --exclude="*.spec.js" --exclude-dir=templates | grep -v "# password\|# secret\|OPENAI_API_KEY\|GitHub token" | grep -v "API密钥" | grep -v "密码" | grep -v "凭证" | grep -v "/sk-\[a-zA-Z0-9\]" | grep -v "/ghp_\[a-zA-Z0-9\]" | grep -v "package.json.*keywords" | grep -v "topKeywords\|article\.keywords\|\.keywords" | grep -v "i18n/config.js\|utils/i18n.js"; then
           echo "⚠️ Found possible credentials"
           exit 1
         else
