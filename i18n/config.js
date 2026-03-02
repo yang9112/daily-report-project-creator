@@ -8,7 +8,7 @@ const fs = require('fs')
 class I18nConfig {
   constructor() {
     this.defaultLocale = 'zh-CN'
-    this.supportedLocales = ['zh-CN', 'en-US']
+    this.supportedLocales = ['zh-CN', 'en-US', 'ja-JP', 'ko-KR']
     this.localesDir = path.join(__dirname, '../locales')
     this.messages = {}
     this.loadMessages()
@@ -51,6 +51,10 @@ class I18nConfig {
     const systemLocale = process.env.LANG || process.env.LC_ALL || process.env.LC_MESSAGES
     if (systemLocale && systemLocale.startsWith('en')) {
       return 'en-US'
+    } else if (systemLocale && systemLocale.startsWith('ja')) {
+      return 'ja-JP'
+    } else if (systemLocale && systemLocale.startsWith('ko')) {
+      return 'ko-KR'
     }
     return this.defaultLocale
   }

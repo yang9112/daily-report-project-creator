@@ -54,7 +54,6 @@ describe('BatchProjectCreator', () => {
       // 验证项目结构
       config.projects.forEach(project => {
         expect(project).toHaveProperty('name')
-        expect(project).toHaveProperty('description')
         expect(project).toHaveProperty('options')
         expect(project.options).toHaveProperty('llmProvider')
         expect(project.options).toHaveProperty('createGitHub')

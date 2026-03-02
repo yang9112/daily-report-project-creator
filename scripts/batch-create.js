@@ -3,16 +3,20 @@
 /* eslint-disable no-console */
 const fs = require('fs')
 const path = require('path')
+const { Command } = require('commander')
 const DailyReportProjectCreator = require('./create-project')
 const i18n = require('../utils/i18n')
+const { consoleStyler } = require('../utils/console-styler')
 /* eslint-enable no-console */
 
 /**
  * 批量创建日报项目
  */
 class BatchProjectCreator {
-  constructor () {
-    this.creator = new DailyReportProjectCreator()
+  constructor (theme = 'default') {
+    this.console = consoleStyler
+    this.console.setTheme(theme)
+    this.creator = new DailyReportProjectCreator(null, theme)
   }
 
   /**
@@ -21,23 +25,21 @@ class BatchProjectCreator {
   async batchCreateFromConfig (configPath) {
     const config = this.loadConfig(configPath)
 
-    /* eslint-disable no-console */
-    console.log(i18n.t('batch.creating', { count: config.projects.length }))
+    this.console.info(`开始批量创建 ${config.projects.length} 个项目`)
 
     for (let i = 0; i < config.projects.length; i++) {
       const project = config.projects[i]
-      console.log(`\n[${i + 1}/${config.projects.length}] 创建项目: ${project.name}`)
+      this.console.info(`[${i + 1}/${config.projects.length}] 创建项目: ${project.name}`)
 
       try {
         await this.creator.createProject(project.name, project.options)
-        console.log(`  ✅ 成功: ${project.name}`)
+        this.console.success(`成功: ${project.name}`)
       } catch (error) {
-        console.error(`  ❌ 失败: ${project.name} - ${error.message}`)
+        this.console.error(`失败: ${project.name}`, error.message)
       }
     }
 
-    console.log('\n🎉 批量创建完成！')
-    /* eslint-enable no-console */
+    this.console.success('批量创建完成！')
   }
 
   /**
@@ -48,12 +50,17 @@ class BatchProjectCreator {
       throw new Error(`配置文件不存在: ${configPath}`)
     }
 
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
-
-    if (!config.projects || !Array.isArray(config.projects)) {
-      throw new Error('配置文件格式错误，需要包含 projects 数组')
+    const configContent = fs.readFileSync(configPath, 'utf8')
+    const config = JSON.parse(configContent)
+    
+    if (!config.projects) {
+      throw new Error('配置文件格式错误: 缺少projects字段')
     }
-
+    
+    if (!Array.isArray(config.projects)) {
+      throw new Error('配置文件格式错误: projects字段必须是数组')
+    }
+    
     return config
   }
 
@@ -61,49 +68,32 @@ class BatchProjectCreator {
    * 生成示例配置文件
    */
   generateExampleConfig () {
-    const exampleConfig = {
+    const config = {
       projects: [
         {
-          name: 'ai-news',
-          description: 'AI新闻技术日报',
+          name: 'frontend-weekly',
           options: {
+            createGitHub: false,
             llmProvider: 'openai',
-            model: 'gpt-3.5-turbo',
-            limitArticles: 15,
-            createGitHub: true
+            model: 'gpt-3.5-turbo'
           }
         },
         {
-          name: 'frontend-digest',
-          description: '前端技术周刊',
+          name: 'backend-daily',
           options: {
-            llmProvider: 'deepseek',
-            model: 'deepseek-chat',
-            limitArticles: 20,
-            createGitHub: true
-          }
-        },
-        {
-          name: 'backend-insights',
-          description: '后端技术洞察',
-          options: {
+            createGitHub: true,
             llmProvider: 'openai',
-            model: 'gpt-4',
-            limitArticles: 10,
-            createGitHub: false
+            model: 'gpt-4'
           }
         }
       ]
     }
 
-    fs.writeFileSync(
-      path.join(__dirname, '../batch-config.example.json'),
-      JSON.stringify(exampleConfig, null, 2)
-    )
+    const configPath = path.join(__dirname, '../batch-config.example.json')
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 
-    /* eslint-disable no-console */
-    console.log('✅ 示例配置文件已生成: batch-config.example.json')
-    /* eslint-enable no-console */
+    this.console.success(`示例配置文件已生成: ${configPath}`)
+    return configPath
   }
 
   /**
@@ -116,34 +106,35 @@ class BatchProjectCreator {
       output: process.stdout
     })
 
+    this.console.title('批量项目配置')
+
     const projects = []
     let addMore = true
 
     while (addMore) {
-      /* eslint-disable no-console */
-      console.log('\n📝 配置项目:')
-      /* eslint-enable no-console */
+      this.console.section(`配置项目 ${projects.length + 1}`)
 
       const name = await this.question(rl, '项目名称: ')
-      const description = await this.question(rl, '项目描述: ')
-      const llmProvider = await this.question(rl, 'LLM提供商 (openai/deepseek): ', 'openai')
-      const model = await this.question(rl, '模型名称: ', 'gpt-3.5-turbo')
-      const limitArticles = await this.question(rl, '文章数量限制: ', '20')
-      const createGitHub = await this.question(rl, '创建GitHub仓库 (y/n): ', 'y')
+      if (!name) {
+        this.console.warn('项目名称不能为空')
+        continue
+      }
+
+      const createGitHub = await this.question(rl, '创建GitHub仓库? (y/N): ', 'n')
+      const llmProvider = await this.question(rl, 'LLM提供商 (openai): ', 'openai')
+      const model = await this.question(rl, '模型 (gpt-3.5-turbo): ', 'gpt-3.5-turbo')
 
       projects.push({
         name,
-        description,
         options: {
+          createGitHub: createGitHub.toLowerCase() === 'y',
           llmProvider,
-          model,
-          limitArticles: parseInt(limitArticles),
-          createGitHub: createGitHub.toLowerCase() === 'y'
+          model
         }
       })
 
-      const continueAdding = await this.question(rl, '继续添加项目 (y/n): ', 'n')
-      addMore = continueAdding.toLowerCase() === 'y'
+      const shouldContinue = await this.question(rl, '添加更多项目? (y/N): ', 'n')
+      addMore = shouldContinue.toLowerCase() === 'y'
     }
 
     rl.close()
@@ -153,9 +144,7 @@ class BatchProjectCreator {
     const configPath = path.join(__dirname, '../batch-config.json')
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 
-    /* eslint-disable no-console */
-    console.log(`\n✅ 配置已保存到: ${configPath}`)
-    /* eslint-enable no-console */
+    this.console.success(`配置已保存到: ${configPath}`)
 
     return configPath
   }
@@ -174,91 +163,60 @@ class BatchProjectCreator {
 
 // 命令行接口
 if (require.main === module) {
-  const args = process.argv.slice(2)
-  const action = args[0]
-
-  const batchCreator = new BatchProjectCreator()
-
-  switch (action) {
-    case 'help':
-    case '--help':
-    case '-h':
-      /* eslint-disable no-console */
-      console.log('🚀 批量日报项目创建器')
-      console.log('')
-      console.log('用法:')
-      console.log('  node batch-create.js config                    # 生成示例配置文件')
-      console.log('  node batch-create.js interactive              # 交互式配置')
-      console.log('  node batch-create.js file <config-path>       # 从配置文件创建')
-      console.log('  node batch-create.js help                     # 显示帮助')
-      /* eslint-enable no-console */
-      break
-
-    case 'config':
+  const program = new Command()
+  
+  program
+    .name('daily-report-batch')
+    .description('批量创建日报项目')
+    .version('1.0.0')
+    .option('-l, --lang <language>', '指定语言 (zh-CN, en-US, ja-JP, ko-KR)', 'zh-CN')
+    .option('-t, --theme <theme>', '指定主题 (default, minimal, vibrant)', 'default')
+  
+  program
+    .command('config')
+    .description('生成示例配置文件')
+    .action((options) => {
+      // 设置语言
+      i18n.setLocale(program.opts().lang)
+      
+      const batchCreator = new BatchProjectCreator(program.opts().theme)
       batchCreator.generateExampleConfig()
-      break
-
-    case 'interactive':
+    })
+  
+  program
+    .command('interactive')
+    .description('交互式配置')
+    .action((options) => {
+      // 设置语言
+      i18n.setLocale(program.opts().lang)
+      
+      const batchCreator = new BatchProjectCreator(program.opts().theme)
       batchCreator.interactiveConfig()
         .then(configPath => {
           return batchCreator.batchCreateFromConfig(configPath)
         })
-        .then(() => {
-          process.exit(0)
-        })
         .catch(error => {
-          console.error('❌ 错误:', error)
+          batchCreator.console.error('批量创建失败', error.message)
           process.exit(1)
         })
-      break
-
-    case 'file': {
-      const configPath = args[1]
-      if (!configPath) {
-        /* eslint-disable no-console */
-        console.log('用法: node batch-create.js file <config-path>')
-        /* eslint-enable no-console */
-        process.exit(1)
-      }
-
-      // 检查是否为帮助请求
-      if (configPath && (configPath === 'help' || configPath === '--help' || configPath === '-h')) {
-        /* eslint-disable no-console */
-        console.log('🚀 批量日报项目创建器')
-        console.log('')
-        console.log('用法:')
-        console.log('  node batch-create.js config                    # 生成示例配置文件')
-        console.log('  node batch-create.js interactive              # 交互式配置')
-        console.log('  node batch-create.js file <config-path>       # 从配���文件创建')
-        console.log('  node batch-create.js help                     # 显示帮助')
-        /* eslint-enable no-console */
-        process.exit(0)
-      }
-
+    })
+  
+  program
+    .command('file <config-path>')
+    .description('从配置文件创建项目')
+    .action((configPath, options) => {
+      // 设置语言
+      i18n.setLocale(program.opts().lang)
+      
+      const batchCreator = new BatchProjectCreator(program.opts().theme)
       batchCreator.batchCreateFromConfig(configPath)
-        .then(() => {
-          process.exit(0)
-        })
         .catch(error => {
-          /* eslint-disable no-console */
-          console.error('❌ 错误:', error)
-          /* eslint-enable no-console */
+          batchCreator.console.error('批量创建失败', error.message)
           process.exit(1)
         })
-      break
-    }
-
-    default:
-      /* eslint-disable no-console */
-      console.log('🚀 批量日报项目创建器')
-      console.log('')
-      console.log('用法:')
-      console.log('  node batch-create.js config                    # 生成示例配置文件')
-      console.log('  node batch-create.js interactive              # 交互式配置')
-      console.log('  node batch-create.js file <config-path>       # 从配置文件创建')
-      /* eslint-enable no-console */
-      break
-  }
+    })
+  
+  program.parse()
 }
 
 module.exports = BatchProjectCreator

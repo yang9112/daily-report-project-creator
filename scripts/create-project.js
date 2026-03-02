@@ -6,17 +6,20 @@ const path = require('path')
 const { execSync } = require('child_process')
 const { Command } = require('commander')
 const i18n = require('../utils/i18n')
+const { consoleStyler } = require('../utils/console-styler')
 /* eslint-enable no-console */
 
 /**
  * 基于tech-daily-digest创建新的日报项目
  */
 class DailyReportProjectCreator {
-  constructor (i18nInstance = null) {
+  constructor (i18nInstance = null, theme = 'default') {
     this.baseSkillPath = '/root/workspace/skills/tech-daily-digest'
     // 根据环境设置输出目录
     this.outputDir = process.env.NODE_ENV === 'test' ? '/tmp/github-projects' : '/root/workspace/github-projects'
     this.i18n = i18nInstance || i18n
+    this.console = consoleStyler
+    this.console.setTheme(theme)
   }
 
   /**
@@ -50,7 +53,7 @@ class DailyReportProjectCreator {
     // 验证项目名称
     this.validateProjectName(projectName)
 
-    console.log(this.i18n.t('project.creating', { name: projectName }))
+    this.console.info(this.i18n.t('project.creating', { name: projectName }))
 
     const projectPath = path.join(this.outputDir, `daily-report-${projectName}`)
 
@@ -74,7 +77,7 @@ class DailyReportProjectCreator {
       await this.createGitHubRepository(projectName, projectPath)
     }
 
-    console.log(this.i18n.t('project.created', { name: projectPath }))
+    this.console.success(this.i18n.t('project.created', { name: projectPath }))
     return projectPath
   }
 
@@ -82,7 +85,7 @@ class DailyReportProjectCreator {
    * 创建项目目录结构
    */
   createProjectStructure (projectPath, projectName) {
-    console.log(this.i18n.t('scripts.creating_structure'))
+    this.console.info(this.i18n.t('scripts.creating_structure'))
 
     const directories = [
       'src',
@@ -104,7 +107,7 @@ class DailyReportProjectCreator {
    * 复制核心代码文件
    */
   copyCoreFiles (projectPath) {
-    console.log(this.i18n.t('scripts.copying_files'))
+    this.console.info(this.i18n.t('scripts.copying_files'))
 
     const coreFiles = [
       'index.js',
@@ -127,20 +130,20 @@ class DailyReportProjectCreator {
       let srcPath = null
       if (fs.existsSync(skillPath)) {
         srcPath = skillPath
-        console.log(`  ✅ 从技能目录复制: ${file}`)
+        this.console.success(`从技能目录复制: ${file}`)
       } else if (fs.existsSync(templatePath)) {
         srcPath = templatePath
-        console.log(`  ✅ 从模板目录复制: ${file}`)
+        this.console.success(`从模板目录复制: ${file}`)
       } else {
-        console.log(`  ⚠️  跳过: ${file} (源文件不存在)`)
+        this.console.warn(`跳过: ${file} (源文件不存在)`)
         return
       }
 
       try {
         fs.copyFileSync(srcPath, destPath)
-        console.log(`    📁 目标: src/${file}`)
+        this.console.info(`目标: src/${file}`)
       } catch (error) {
-        console.log(`  ❌ 复制失败: ${file} - ${error.message}`)
+        this.console.error(`复制失败: ${file}`, error.message)
       }
     })
 
@@ -193,7 +196,14 @@ class DailyReportProjectCreator {
    * 生成配置文件
    */
   generateConfigFiles (projectPath, projectName, options) {
-    console.log(this.i18n.t('scripts.generating_config'))
+    this.console.info(this.i18n.t('scripts.generating_config'))
+
+    // 生成package.json
+    const packageJson = this.createPackageJson(projectPath)
+    fs.writeFileSync(
+      path.join(projectPath, 'package.json'),
+      JSON.stringify(packageJson, null, 2)
+    )
 
     // 1. 配置文件模板
     const configTemplate = {
@@ -221,6 +231,12 @@ class DailyReportProjectCreator {
           }
         ]
       }
+    }
+
+    // 确保config目录存在
+    const configDir = path.join(projectPath, 'config')
+    if (!fs.existsSync(configDir)) {
+      fs.mkdirSync(configDir, { recursive: true })
     }
 
     fs.writeFileSync(
@@ -275,7 +291,7 @@ LOG_FILE=./logs/app.log
    * 生成���档
    */
   generateDocumentation (projectPath, projectName) {
-    console.log(this.i18n.t('scripts.generating_docs'))
+    this.console.info(this.i18n.t('scripts.generating_docs'))
 
     // 1. README.md
     const readme = this.generateReadme(projectName)
@@ -532,15 +548,15 @@ coverage/
         skillMdContent = skillMdContent.replace(/daily-report-project-creator/g, `daily-report-${projectName}`)
 
         fs.writeFileSync(path.join(projectPath, 'SKILL.md'), skillMdContent)
-        console.log(this.i18n.t('scripts.skill_copied'))
+        this.console.success(this.i18n.t('scripts.skill_copied'))
       } else {
         // 如果SKILL.md不存在，生成一个基本的
         const basicSkillMd = this.generateBasicSkillMd(projectName)
         fs.writeFileSync(path.join(projectPath, 'SKILL.md'), basicSkillMd)
-        console.log(this.i18n.t('scripts.skill_generated'))
+        this.console.success(this.i18n.t('scripts.skill_generated'))
       }
     } catch (error) {
-      console.log(this.i18n.t('scripts.skill_failed', { error: error.message }))
+      this.console.error(this.i18n.t('scripts.skill_failed', { error: error.message }))
     }
   }
 
@@ -697,7 +713,7 @@ jobs:
    * 初始化Git仓库
    */
   initGitRepository (projectPath) {
-    console.log(this.i18n.t('scripts.init_git'))
+    this.console.info(this.i18n.t('scripts.init_git'))
 
     try {
       // 使用 --quiet ���数来抑制Git警告
@@ -708,9 +724,9 @@ jobs:
       execSync('git config user.name "Test User"', gitOptions)
       execSync('git add .', gitOptions)
       execSync('git commit -m "🎉 初始化日报项目"', gitOptions)
-      console.log(this.i18n.t('scripts.git_init_success'))
+      this.console.success(this.i18n.t('scripts.git_init_success'))
     } catch (error) {
-      console.log(this.i18n.t('scripts.git_init_failed', { error: error.message }))
+      this.console.error(this.i18n.t('scripts.git_init_failed', { error: error.message }))
     }
   }
 
@@ -718,7 +734,7 @@ jobs:
    * 创建GitHub仓库
    */
   async createGitHubRepository (projectName, projectPath) {
-    console.log(this.i18n.t('scripts.creating_github'))
+    this.console.info(this.i18n.t('scripts.creating_github'))
 
     const repoName = `daily-report-${projectName}`
 
@@ -732,10 +748,10 @@ jobs:
         { cwd: projectPath })
       execSync('git push -u origin main', { cwd: projectPath })
 
-      console.log(`  ✅ GitHub仓库创建成功: https://github.com/yang9112/${repoName}`)
+      this.console.success(`GitHub仓库创建成功: https://github.com/yang9112/${repoName}`)
     } catch (error) {
-      console.log(this.i18n.t('scripts.github_failed', { error: error.message }))
-      console.log(`  💡 请手动创建仓库: gh repo create ${repoName} --public`)
+      this.console.error(this.i18n.t('scripts.github_failed', { error: error.message }))
+      this.console.info(`请手动创建仓库: gh repo create ${repoName} --public`)
     }
   }
 }
@@ -749,7 +765,8 @@ if (require.main === module) {
     .description('创建新的日报项目')
     .version('1.0.0')
     .argument('<project-name>', '项目名称')
-    .option('-l, --lang <language>', '指定语言 (zh-CN, en-US)', 'zh-CN')
+    .option('-l, --lang <language>', '指定语言 (zh-CN, en-US, ja-JP, ko-KR)', 'zh-CN')
+    .option('-t, --theme <theme>', '指定主题 (default, minimal, vibrant)', 'default')
     .option('--no-github', '不创建GitHub仓库')
     .action((projectName, options) => {
       // 检查是否为帮助请求
@@ -761,13 +778,13 @@ if (require.main === module) {
       // 设置语言
       i18n.setLocale(options.lang)
       
-      const creator = new DailyReportProjectCreator(i18n)
+      const creator = new DailyReportProjectCreator(i18n, options.theme)
       creator.createProject(projectName, { createGitHub: options.github })
         .then(() => {
-          console.log(i18n.t('project.creation_complete'))
+          creator.console.success(i18n.t('project.creation_complete'))
         })
         .catch(error => {
-          console.error(i18n.t('error.creation_failed', { error: error.message }))
+          creator.console.error(i18n.t('error.creation_failed', { error: error.message }))
           process.exit(1)
         })
     })

@@ -1,0 +1,43 @@
+{
+  "project": {
+    "creating": "프로젝트 생성 중: {name}",
+    "created": "프로젝트가 성공적으로 생성되었습니다: {name}",
+    "validation": {
+      "empty": "프로젝트 이름을 입력해주세요",
+      "trim_empty": "프로젝트 이름은 비워둘 수 없습니다",
+      "too_long": "프로젝트 이름은 50자 이하여야 합니다",
+      "invalid_chars": "프로젝트 이름은 영숫자, 밑줄, 하이픈만 포함할 수 있습니다"
+    }
+  },
+  "scripts": {
+    "creating_structure": "프로젝트 구조 생성 중...",
+    "copying_files": "파일 복사 중...",
+    "generating_config": "설정 파일 생성 중...",
+    "generating_docs": "문서 생성 중...",
+    "skill_copied": "SKILL.md를 복사했습니다",
+    "skill_generated": "기본 SKILL.md를 생성했습니다",
+    "skill_failed": "SKILL.md 생성 실패: {error}",
+    "init_git": "Git 리포지토리 초기화 중...",
+    "git_init_success": "Git 리포지토리가 성공적으로 초기화되었습니다",
+    "git_init_failed": "Git 리포지토리 초기화 실패: {error}",
+    "creating_github": "GitHub 리포지토리 생성 중...",
+    "github_failed": "GitHub 리포지토리 생성 실패: {error}"
+  },
+  "error": {
+    "creation_failed": "프로젝트 생성 실패: {error}",
+    "file_copy_failed": "파일 복사 실패: {error}"
+  },
+  "success": {
+    "creation_complete": "프로젝트 생성이 완료되었습니다!"
+  },
+  "batch": {
+    "creating_projects": "일괄 프로젝트 생성 중...",
+    "completed": "일괄 생성 완료",
+    "failed": "일괄 생성 실패: {error}"
+  },
+  "theme": {
+    "set": "테마 설정: {theme}",
+    "invalid": "잘못된 테마: {theme}",
+    "available": "사용 가능한 테마: {themes}"
+  }
+}
