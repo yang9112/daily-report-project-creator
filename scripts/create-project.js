@@ -9,6 +9,31 @@ const i18n = require('../utils/i18n')
 /* eslint-enable no-console */
 
 /**
+ * 显示帮助信息
+ */
+function showHelp() {
+  console.log('🚀 日报项目创建器');
+  console.log('');
+  console.log('��法: node create-project.js <项目名称> [选项]');
+  console.log('');
+  console.log('参数:');
+  console.log('  <项目名称>        要创建的项目名称');
+  console.log('');
+  console.log('选项:');
+  console.log('  --help, -h       显示帮助信息');
+  console.log('  --no-github      不创建GitHub仓库');
+  console.log('');
+  console.log('示例:');
+  console.log('  node create-project.js ai-summary');
+  console.log('  node create-project.js tech-daily --no-github');
+  console.log('');
+  console.log('项目名称规则:');
+  console.log('  - 只能包含字母、数字、下划线和连字符');
+  console.log('  - 长度不能超过50个字符');
+  console.log('  - 示例: ai-summary, tech-daily, news-feed');
+}
+
+/**
  * 基于tech-daily-digest创建新的日报项目
  */
 class DailyReportProjectCreator {
@@ -149,7 +174,37 @@ class DailyReportProjectCreator {
     fs.writeFileSync(
       path.join(projectPath, 'package.json'),
       JSON.stringify(packageJson, null, 2)
+<<<<<<< HEAD
     )
+=======
+    );
+    
+    // 修复index.js中的路径引用问题
+    this.fixIndexJsPaths(projectPath);
+  }
+
+  /**
+   * 修复index.js中的路径引用问题
+   */
+  fixIndexJsPaths(projectPath) {
+    const indexJsPath = path.join(projectPath, 'src', 'index.js');
+    
+    if (!fs.existsSync(indexJsPath)) {
+      return;
+    }
+    
+    try {
+      let content = fs.readFileSync(indexJsPath, 'utf8');
+      
+      // 将 ./scripts/xxx 替换为 ./xxx
+      content = content.replace(/require\('\.\/scripts\/([^']+)'\)/g, "require('./$1')");
+      
+      fs.writeFileSync(indexJsPath, content, 'utf8');
+      console.log('  ✅ 已修复index.js中的路径引用');
+    } catch (error) {
+      console.log(`  ⚠️  修复index.js路径失败: ${error.message}`);
+    }
+>>>>>>> origin/master
   }
 
   /**
@@ -742,6 +797,7 @@ jobs:
 
 // 命令行接口
 if (require.main === module) {
+<<<<<<< HEAD
   const program = new Command()
   
   program
@@ -773,6 +829,41 @@ if (require.main === module) {
     })
   
   program.parse()
+=======
+  const args = process.argv.slice(2);
+  
+  // 解析参数
+  if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
+    showHelp();
+    process.exit(0);
+  }
+  
+  // 过滤掉选项参数，获取项目名称
+  const projectNameIndex = args.findIndex(arg => !arg.startsWith('--'));
+  if (projectNameIndex === -1) {
+    console.error('❌ 请提供项目名称');
+    showHelp();
+    process.exit(1);
+  }
+  
+  const projectName = args[projectNameIndex];
+  const options = {
+    createGitHub: !args.includes('--no-github')
+  };
+  
+  const creator = new DailyReportProjectCreator();
+  creator.createProject(projectName, options)
+    .then(() => {
+      console.log('🎉 项目创建完成！');
+    })
+    .catch(error => {
+      console.error('❌ 项目创建失败:', error.message);
+      if (error.message.includes('项目名称')) {
+        showHelp();
+      }
+      process.exit(1);
+    });
+>>>>>>> origin/master
 }
 
 module.exports = DailyReportProjectCreator
