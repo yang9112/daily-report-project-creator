@@ -38,7 +38,7 @@ describe('ProjectCreator', () => {
       const projectPath = path.join(process.cwd(), testProjectName);
       await creator.createProjectStructure(projectPath);
 
-      const requiredDirs = ['src', 'src/utils', 'src/services', 'templates', 'tests'];
+      const requiredDirs = ['src', 'config', 'data', 'output', 'scripts', 'docs', 'tests', '.github/workflows'];
       
       for (const dir of requiredDirs) {
         const dirPath = path.join(projectPath, dir);
@@ -50,38 +50,23 @@ describe('ProjectCreator', () => {
   describe('generateConfigFiles', () => {
     test('should generate package.json with correct dependencies', async () => {
       const projectPath = path.join(process.cwd(), testProjectName);
-      const config = {
-        projectName: testProjectName,
-        description: 'Test project',
-        llmProvider: 'openai',
-        features: ['email', 'llm']
-      };
-
-      await creator.generateConfigFiles(projectPath, config);
-      const packageJsonPath = path.join(projectPath, 'package.json');
+      await creator.generateConfigFiles(projectPath, testProjectName, { llmProvider: 'openai' });
       
+      const packageJsonPath = path.join(projectPath, 'package.json');
       expect(await fs.pathExists(packageJsonPath)).toBe(true);
       
       const packageJson = await fs.readJSON(packageJsonPath);
-      expect(packageJson.name).toBe(testProjectName);
+      expect(packageJson.name).toBe(`daily-report-${testProjectName}`);
       expect(packageJson.dependencies).toBeDefined();
-      expect(packageJson.dependencies.nodemailer).toBe('^8.0.1');
     });
   });
 
   describe('security', () => {
     test('should use secure nodemailer version', async () => {
       const projectPath = path.join(process.cwd(), testProjectName);
-      const config = {
-        projectName: testProjectName,
-        description: 'Test project',
-        llmProvider: 'openai',
-        features: ['email']
-      };
-
-      await creator.generateConfigFiles(projectPath, config);
-      const packageJsonPath = path.join(projectPath, 'package.json');
+      await creator.generateConfigFiles(projectPath, testProjectName, { llmProvider: 'openai' });
       
+      const packageJsonPath = path.join(projectPath, 'package.json');
       const packageJson = await fs.readJSON(packageJsonPath);
       const nodemailerVersion = packageJson.dependencies.nodemailer;
       

@@ -2,7 +2,7 @@ const i18n = require('../../utils/i18n');
 
 describe('i18n', () => {
   beforeEach(() => {
-    i18n.setLang('zh-CN');
+    i18n.setLocale('zh-CN');
   });
 
   describe('t', () => {
@@ -12,7 +12,7 @@ describe('i18n', () => {
     });
 
     test('should return English translation when language switched', () => {
-      i18n.setLang('en-US');
+      i18n.setLocale('en-US');
       const message = i18n.t('project.created');
       expect(message).toBe('Project created successfully');
     });
@@ -28,21 +28,21 @@ describe('i18n', () => {
     });
   });
 
-  describe('setLang', () => {
+  describe('setLocale', () => {
     test('should set language to zh-CN', () => {
-      i18n.setLang('zh-CN');
-      expect(i18n.currentLang).toBe('zh-CN');
+      i18n.setLocale('zh-CN');
+      expect(i18n.currentLocale).toBe('zh-CN');
     });
 
     test('should set language to en-US', () => {
-      i18n.setLang('en-US');
-      expect(i18n.currentLang).toBe('en-US');
+      i18n.setLocale('en-US');
+      expect(i18n.currentLocale).toBe('en-US');
     });
 
     test('should not change language for unsupported language', () => {
-      i18n.setLang('zh-CN');
-      i18n.setLang('fr-FR');
-      expect(i18n.currentLang).toBe('zh-CN');
+      i18n.setLocale('zh-CN');
+      i18n.setLocale('fr-FR');
+      expect(i18n.currentLocale).toBe('zh-CN');
     });
   });
 });
