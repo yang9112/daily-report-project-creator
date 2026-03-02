@@ -188,7 +188,7 @@ jobs:
         echo '}' >> /tmp/large-batch.json
         
         start_time=$(date +%s)
-        timeout 60s NODE_ENV=test node scripts/batch-create.js file /tmp/large-batch.json || { echo "⚠️ Batch creation timed out"; exit 1; }
+        timeout 60s env NODE_ENV=test node scripts/batch-create.js file /tmp/large-batch.json || { echo "⚠️ Batch creation timed out"; exit 1; }
         end_time=$(date +%s)
         
         duration=$((end_time - start_time))
