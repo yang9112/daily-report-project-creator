@@ -104,12 +104,11 @@ class DailyReportProjectCreator {
       'collector.js',
       'processor.js',
       'generator.js',
-      'database.js',
-      'utils.js'
+      'database.js'
     ]
 
     coreFiles.forEach(file => {
-      const srcPath = path.join(this.baseSkillPath, file)
+      const srcPath = path.join(this.baseSkillPath, 'src', file)
       const destPath = path.join(projectPath, 'src', file)
 
       if (fs.existsSync(srcPath)) {
