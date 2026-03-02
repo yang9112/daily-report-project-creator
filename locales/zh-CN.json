@@ -1,0 +1,56 @@
+{
+  "project": {
+    "creating": "🚀 创建日报项目: {name}",
+    "created": "✅ 日报项目创建成功: {name}",
+    "creation_complete": "🎉 项目创建完成！",
+    "exists": "⚠️  项目目录已存在: {path}",
+    "not_found": "❌ 基础技能目录不存在: {path}",
+    "validation": {
+      "empty": "项目名称不能为空且必须是字符串",
+      "trim_empty": "项目名称不能为空",
+      "too_long": "项目名称长度不能超过50个字符",
+      "invalid_chars": "项目名称只能包含字母、数字、下划线和连字符"
+    }
+  },
+  "batch": {
+    "creating": "📦 开始批量创建 {count} 个项目...",
+    "processing": "🔄 正在处理: {name}",
+    "created": "✅ 项目创建成功: {name}",
+    "failed": "❌ 项目创建失败: {name} - {error}",
+    "completed": "🎉 批量创建完成！成功: {success}, 失败: {failed}"
+  },
+  "validation": {
+    "checking": "🔍 开始项目验证...",
+    "structure": "📁 验证项目结构...",
+    "package": "📦 验证package.json...",
+    "skill": "📋 验证SKILL.md...",
+    "agent": "🤖 验证Agent.md...",
+    "scripts": "🔧 验证脚本文件...",
+    "gitignore": "🙈 验证.gitignore...",
+    "docs": "📚 验证文档完整性...",
+    "security": "🔒 验证安全性...",
+    "dependencies": "📋 验证依赖...",
+    "complete": "🎉 所有验证通过！项目结构完整且符合规范。",
+    "score": "📈 项目质量评分: {score}/100"
+  },
+  "error": {
+    "file_not_found": "文件不存在: {path}",
+    "validation_failed": "验证失败: {error}",
+    "creation_failed": "项目创建失败: {error}",
+    "config_error": "配置错误: {error}"
+  },
+  "scripts": {
+    "copying_files": "📋 复制核心代码文件...",
+    "creating_structure": "📁 创建项目目录结构...",
+    "generating_config": "⚙️ 生成配置文件...",
+    "generating_docs": "📚 生成项目文档...",
+    "skill_copied": "  ✅ SKILL.md 已复���",
+    "skill_generated": "  ✅ SKILL.md 已生成",
+    "skill_failed": "  ⚠️ SKILL.md 生成失败: {error}",
+    "init_git": "🔧 初始化Git仓库...",
+    "git_init_success": "  ✅ Git仓库初始化完成",
+    "git_init_failed": "  ⚠️ Git初始化失败: {error}",
+    "creating_github": "🌐 创建GitHub仓库...",
+    "github_failed": "  ⚠️ GitHub仓库创建失败: {error}"
+  }
+}

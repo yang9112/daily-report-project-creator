@@ -4,6 +4,7 @@
 const fs = require('fs')
 const path = require('path')
 const DailyReportProjectCreator = require('./create-project')
+const i18n = require('../utils/i18n')
 /* eslint-enable no-console */
 
 /**
@@ -21,7 +22,7 @@ class BatchProjectCreator {
     const config = this.loadConfig(configPath)
 
     /* eslint-disable no-console */
-    console.log(`🚀 开始批量创建 ${config.projects.length} 个项目...`)
+    console.log(i18n.t('batch.creating', { count: config.projects.length }))
 
     for (let i = 0; i < config.projects.length; i++) {
       const project = config.projects[i]

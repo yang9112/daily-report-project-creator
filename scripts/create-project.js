@@ -4,16 +4,19 @@
 const fs = require('fs')
 const path = require('path')
 const { execSync } = require('child_process')
+const { Command } = require('commander')
+const i18n = require('../utils/i18n')
 /* eslint-enable no-console */
 
 /**
  * 基于tech-daily-digest创建新的日报项目
  */
 class DailyReportProjectCreator {
-  constructor () {
+  constructor (i18nInstance = null) {
     this.baseSkillPath = '/root/workspace/skills/tech-daily-digest'
-    // 根据���境设置输出目录
+    // 根据环境设置输出目录
     this.outputDir = process.env.NODE_ENV === 'test' ? '/tmp/github-projects' : '/root/workspace/github-projects'
+    this.i18n = i18nInstance || i18n
   }
 
   /**
@@ -21,20 +24,20 @@ class DailyReportProjectCreator {
    */
   validateProjectName (projectName) {
     if (!projectName || typeof projectName !== 'string') {
-      throw new Error('项目名称不能为空且必须是字符串')
+      throw new Error(this.i18n.t('project.validation.empty'))
     }
 
     if (projectName.trim().length === 0) {
-      throw new Error('项目名称不能为空')
+      throw new Error(this.i18n.t('project.validation.trim_empty'))
     }
 
     if (projectName.length > 50) {
-      throw new Error('项目名称长度不能超过50个字符')
+      throw new Error(this.i18n.t('project.validation.too_long'))
     }
 
     // 检查是否包含非法字符
     if (!/^[a-zA-Z0-9_-]+$/.test(projectName)) {
-      throw new Error('项目名称只能包含字母、数字、下划线和连字符')
+      throw new Error(this.i18n.t('project.validation.invalid_chars'))
     }
 
     return true
@@ -47,7 +50,7 @@ class DailyReportProjectCreator {
     // 验证项目名称
     this.validateProjectName(projectName)
 
-    console.log(`🚀 创建日报项目: ${projectName}`)
+    console.log(this.i18n.t('project.creating', { name: projectName }))
 
     const projectPath = path.join(this.outputDir, `daily-report-${projectName}`)
 
@@ -71,7 +74,7 @@ class DailyReportProjectCreator {
       await this.createGitHubRepository(projectName, projectPath)
     }
 
-    console.log(`✅ 项目创建完成: ${projectPath}`)
+    console.log(this.i18n.t('project.created', { name: projectPath }))
     return projectPath
   }
 
@@ -79,7 +82,7 @@ class DailyReportProjectCreator {
    * 创建项目目录结构
    */
   createProjectStructure (projectPath, projectName) {
-    console.log('📁 创建项目目录结构...')
+    console.log(this.i18n.t('scripts.creating_structure'))
 
     const directories = [
       'src',
@@ -101,7 +104,7 @@ class DailyReportProjectCreator {
    * 复制核心代码文件
    */
   copyCoreFiles (projectPath) {
-    console.log('📋 复制核心代码文件...')
+    console.log(this.i18n.t('scripts.copying_files'))
 
     const coreFiles = [
       'index.js',
@@ -188,7 +191,7 @@ class DailyReportProjectCreator {
    * 生成配置文件
    */
   generateConfigFiles (projectPath, projectName, options) {
-    console.log('⚙️ 生成配置文件...')
+    console.log(this.i18n.t('scripts.generating_config'))
 
     // 1. 配置文件模板
     const configTemplate = {
@@ -270,7 +273,7 @@ LOG_FILE=./logs/app.log
    * 生成���档
    */
   generateDocumentation (projectPath, projectName) {
-    console.log('📚 生成项目文档...')
+    console.log(this.i18n.t('scripts.generating_docs'))
 
     // 1. README.md
     const readme = this.generateReadme(projectName)
@@ -527,15 +530,15 @@ coverage/
         skillMdContent = skillMdContent.replace(/daily-report-project-creator/g, `daily-report-${projectName}`)
 
         fs.writeFileSync(path.join(projectPath, 'SKILL.md'), skillMdContent)
-        console.log('  ✅ SKILL.md 已复制')
+        console.log(this.i18n.t('scripts.skill_copied'))
       } else {
         // 如果SKILL.md不存在，生成一个基本的
         const basicSkillMd = this.generateBasicSkillMd(projectName)
         fs.writeFileSync(path.join(projectPath, 'SKILL.md'), basicSkillMd)
-        console.log('  ✅ SKILL.md 已生成')
+        console.log(this.i18n.t('scripts.skill_generated'))
       }
     } catch (error) {
-      console.log('  ⚠️ SKILL.md 生成失败:', error.message)
+      console.log(this.i18n.t('scripts.skill_failed', { error: error.message }))
     }
   }
 
@@ -692,7 +695,7 @@ jobs:
    * 初始化Git仓库
    */
   initGitRepository (projectPath) {
-    console.log('🔧 初始化Git仓库...')
+    console.log(this.i18n.t('scripts.init_git'))
 
     try {
       // 使用 --quiet ���数来抑制Git警告
@@ -703,9 +706,9 @@ jobs:
       execSync('git config user.name "Test User"', gitOptions)
       execSync('git add .', gitOptions)
       execSync('git commit -m "🎉 初始化日报项目"', gitOptions)
-      console.log('  ✅ Git仓库初始化完成')
+      console.log(this.i18n.t('scripts.git_init_success'))
     } catch (error) {
-      console.log('  ⚠️ Git初始化失败:', error.message)
+      console.log(this.i18n.t('scripts.git_init_failed', { error: error.message }))
     }
   }
 
@@ -713,7 +716,7 @@ jobs:
    * 创建GitHub仓库
    */
   async createGitHubRepository (projectName, projectPath) {
-    console.log('🌐 创建GitHub仓库...')
+    console.log(this.i18n.t('scripts.creating_github'))
 
     const repoName = `daily-report-${projectName}`
 
@@ -729,7 +732,7 @@ jobs:
 
       console.log(`  ✅ GitHub仓库创建成功: https://github.com/yang9112/${repoName}`)
     } catch (error) {
-      console.log('  ⚠️ GitHub仓库创建失败:', error.message)
+      console.log(this.i18n.t('scripts.github_failed', { error: error.message }))
       console.log(`  💡 请手动创建仓库: gh repo create ${repoName} --public`)
     }
   }
@@ -737,25 +740,31 @@ jobs:
 
 // 命令行接口
 if (require.main === module) {
-  const args = process.argv.slice(2)
-  const projectName = args[0]
-
-  if (!projectName) {
-    console.log('🚀 日报项目创建器')
-    console.log('用法: node create-project.js <project-name> [options]')
-    console.log('示例: node create-project.js ai-summary')
-    process.exit(1)
-  }
-
-  const creator = new DailyReportProjectCreator()
-  creator.createProject(projectName, { createGitHub: true })
-    .then(() => {
-      console.log('🎉 项目创建完成！')
+  const program = new Command()
+  
+  program
+    .name('daily-report-create')
+    .description('创建新的日报项目')
+    .version('1.0.0')
+    .argument('<project-name>', '项目名称')
+    .option('-l, --lang <language>', '指定语言 (zh-CN, en-US)', 'zh-CN')
+    .option('--no-github', '不创建GitHub仓库')
+    .action((projectName, options) => {
+      // 设置语言
+      i18n.setLocale(options.lang)
+      
+      const creator = new DailyReportProjectCreator(i18n)
+      creator.createProject(projectName, { createGitHub: options.github })
+        .then(() => {
+          console.log(i18n.t('project.creation_complete'))
+        })
+        .catch(error => {
+          console.error(i18n.t('error.creation_failed', { error: error.message }))
+          process.exit(1)
+        })
     })
-    .catch(error => {
-      console.error('❌ 项目创建失败:', error)
-      process.exit(1)
-    })
+  
+  program.parse()
 }
 
 module.exports = DailyReportProjectCreator
