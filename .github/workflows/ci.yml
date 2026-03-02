@@ -85,7 +85,7 @@ jobs:
         # Test in temporary directory
         cd /tmp
         echo '{"projects":[{"name":"integration-test","options":{"createGitHub":false}}]}' > /tmp/batch-config.json
-        node /github/workspace/scripts/batch-create.js file /tmp/batch-config.json
+        node $GITHUB_WORKSPACE/scripts/batch-create.js file /tmp/batch-config.json
         
     - name: Validate created project structure
       run: |
