@@ -116,8 +116,8 @@ class DailyReportProjectCreator {
     ]
 
     coreFiles.forEach(file => {
-      // 优先从tech-daily-digest技能目录复制
-      const skillPath = path.join(this.baseSkillPath, file)
+      // 优先从tech-daily-digest技能目录的scripts子目录复制
+      const skillPath = path.join(this.baseSkillPath, 'scripts', file)
 
       // 如果不存在，从项目模板目录复制
       const templatePath = path.join(__dirname, '../templates/src', file)
@@ -170,18 +170,20 @@ class DailyReportProjectCreator {
     if (!packageJson.main) {
       packageJson.main = 'src/index.js'
     }
-    if (!packageJson.scripts) {
-      packageJson.scripts = {
-        start: 'node src/index.js',
-        test: 'jest',
-        lint: 'eslint src/ --fix'
-      }
+    // 总是设置正确的scripts
+    packageJson.scripts = {
+      start: 'node src/index.js',
+      test: 'jest',
+      lint: 'eslint src/ --fix',
+      'setup': 'npm install && cp config/config.example.json config/config.json',
+      'help': 'node src/index.js --help'
     }
 
     // 更新项目信息
     const projectName = path.basename(projectPath).replace('daily-report-', '')
     packageJson.name = `daily-report-${projectName}`
     packageJson.description = `基于技术博客的自动化日报系统 - ${projectName}`
+    packageJson.main = 'src/index.js'
     packageJson.keywords = ['daily-report', 'tech-blog', 'ai-summary', 'automation']
 
     return packageJson
