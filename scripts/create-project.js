@@ -327,7 +327,7 @@ LOG_FILE=./logs/app.log
   }
 
   /**
-   * 生成���档
+   * 生成文档
    */
   generateDocumentation (projectPath, projectName) {
     console.log(this.i18n.t('scripts.generating_docs'))
@@ -403,7 +403,7 @@ npm run digest     # 生成日报
 
 \`\`\`
 daily-report-${projectName}/
-├��─ src/                 # 源代码
+├── src/                 # 源代码
 │   ├── index.js        # 主入口
 │   ├── collector.js    # 文章采集器
 │   ├── processor.js    # 文章处理器
