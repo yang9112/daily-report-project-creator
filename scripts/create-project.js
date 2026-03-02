@@ -5,6 +5,31 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 /**
+ * 显示帮助信息
+ */
+function showHelp() {
+  console.log('🚀 日报项目创建器');
+  console.log('');
+  console.log('��法: node create-project.js <项目名称> [选项]');
+  console.log('');
+  console.log('参数:');
+  console.log('  <项目名称>        要创建的项目名称');
+  console.log('');
+  console.log('选项:');
+  console.log('  --help, -h       显示帮助信息');
+  console.log('  --no-github      不创建GitHub仓库');
+  console.log('');
+  console.log('示例:');
+  console.log('  node create-project.js ai-summary');
+  console.log('  node create-project.js tech-daily --no-github');
+  console.log('');
+  console.log('项目名称规则:');
+  console.log('  - 只能包含字母、数字、下划线和连字符');
+  console.log('  - 长度不能超过50个字符');
+  console.log('  - 示例: ai-summary, tech-daily, news-feed');
+}
+
+/**
  * 基于tech-daily-digest创建新的日报项目
  */
 class DailyReportProjectCreator {
@@ -723,22 +748,36 @@ jobs:
 // 命令行接口
 if (require.main === module) {
   const args = process.argv.slice(2);
-  const projectName = args[0];
   
-  if (!projectName) {
-    console.log('🚀 日报项目创建器');
-    console.log('用法: node create-project.js <project-name> [options]');
-    console.log('示例: node create-project.js ai-summary');
+  // 解析参数
+  if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
+    showHelp();
+    process.exit(0);
+  }
+  
+  // 过滤掉选项参数，获取项目名称
+  const projectNameIndex = args.findIndex(arg => !arg.startsWith('--'));
+  if (projectNameIndex === -1) {
+    console.error('❌ 请提供项目名称');
+    showHelp();
     process.exit(1);
   }
   
+  const projectName = args[projectNameIndex];
+  const options = {
+    createGitHub: !args.includes('--no-github')
+  };
+  
   const creator = new DailyReportProjectCreator();
-  creator.createProject(projectName, { createGitHub: true })
+  creator.createProject(projectName, options)
     .then(() => {
       console.log('🎉 项目创建完成！');
     })
     .catch(error => {
-      console.error('❌ 项目创建失败:', error);
+      console.error('❌ 项目创建失败:', error.message);
+      if (error.message.includes('项目名称')) {
+        showHelp();
+      }
       process.exit(1);
     });
 }
