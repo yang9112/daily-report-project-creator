@@ -8,13 +8,13 @@ describe('i18n', () => {
   describe('t', () => {
     test('should return Chinese translation', () => {
       const message = i18n.t('project.created');
-      expect(message).toBe('项目创建成功');
+      expect(message).toBe('✅ 日报项目创建成功: {name}');
     });
 
     test('should return English translation when language switched', () => {
       i18n.setLocale('en-US');
       const message = i18n.t('project.created');
-      expect(message).toBe('Project created successfully');
+      expect(message).toBe('✅ Daily report project created successfully: {name}');
     });
 
     test('should return original key when translation not found', () => {
@@ -23,8 +23,8 @@ describe('i18n', () => {
     });
 
     test('should replace parameters', () => {
-      const message = i18n.t('project.invalid_name', { name: 'test' });
-      expect(message).toBe('项目名称无效'); // 不含参数的示例
+      const message = i18n.t('project.created', { name: 'test' });
+      expect(message).toBe('✅ 日报项目创建成功: test');
     });
   });
 

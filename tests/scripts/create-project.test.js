@@ -50,6 +50,10 @@ describe('ProjectCreator', () => {
   describe('generateConfigFiles', () => {
     test('should generate package.json with correct dependencies', async () => {
       const projectPath = path.join(process.cwd(), testProjectName);
+      
+      // Ensure the directory exists first
+      await fs.ensureDir(projectPath);
+      
       await creator.generateConfigFiles(projectPath, testProjectName, { llmProvider: 'openai' });
       
       const packageJsonPath = path.join(projectPath, 'package.json');
@@ -64,6 +68,10 @@ describe('ProjectCreator', () => {
   describe('security', () => {
     test('should use secure nodemailer version', async () => {
       const projectPath = path.join(process.cwd(), testProjectName);
+      
+      // Ensure the directory exists first
+      await fs.ensureDir(projectPath);
+      
       await creator.generateConfigFiles(projectPath, testProjectName, { llmProvider: 'openai' });
       
       const packageJsonPath = path.join(projectPath, 'package.json');
@@ -71,7 +79,7 @@ describe('ProjectCreator', () => {
       const nodemailerVersion = packageJson.dependencies.nodemailer;
       
       // Should be version 8.x which is secure
-      expect(nodemailerVersion).toMatch(/^8/);
+      expect(nodemailerVersion).toStrictEqual('^8.0.1');
       expect(nodemailerVersion).not.toMatch(/^[67]/);
     });
   });
