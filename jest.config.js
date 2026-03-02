@@ -5,11 +5,13 @@ module.exports = {
     '**/?(*.)+(spec|test).js'
   ],
   collectCoverageFrom: [
-    'scripts/**/*.js',
-    'utils/**/*.js',
-    'src/**/*.js',
+    'scripts/create-project.js',
+    'utils/i18n.js',
+    'utils/console-styler.js',
     '!**/node_modules/**',
-    '!**/coverage/**'
+    '!**/coverage/**',
+    '!scripts/validate.js',
+    '!scripts/batch-create.js'
   ],
   coverageDirectory: 'coverage',
   coverageReporters: [

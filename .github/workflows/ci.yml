@@ -85,7 +85,7 @@ jobs:
         # Test in temporary directory
         cd /tmp
         echo '{"projects":[{"name":"integration-test","options":{"createGitHub":false}}]}' > /tmp/batch-config.json
-        node /github/workspace/scripts/batch-create.js file /tmp/batch-config.json
+        NODE_ENV=test node $GITHUB_WORKSPACE/scripts/batch-create.js file /tmp/batch-config.json
         
     - name: Validate created project structure
       run: |
@@ -157,9 +157,8 @@ jobs:
     - name: Memory usage test
       run: |
         # 监控内存使用的测试
-        export NODE_ENV=test
         mkdir -p /tmp/github-projects
-        node -e "
+        NODE_ENV=test node -e "
         const creator = require('./scripts/create-project');
         const test = async () => {
           const startMemory = process.memoryUsage().heapUsed;
@@ -189,7 +188,7 @@ jobs:
         echo '}' >> /tmp/large-batch.json
         
         start_time=$(date +%s)
-        timeout 60s node scripts/batch-create.js file /tmp/large-batch.json || { echo "⚠️ Batch creation timed out"; exit 1; }
+        timeout 60s env NODE_ENV=test node scripts/batch-create.js file /tmp/large-batch.json || { echo "⚠️ Batch creation timed out"; exit 1; }
         end_time=$(date +%s)
         
         duration=$((end_time - start_time))
