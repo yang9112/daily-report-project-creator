@@ -144,6 +144,32 @@ class DailyReportProjectCreator {
       path.join(projectPath, 'package.json'),
       JSON.stringify(packageJson, null, 2)
     );
+    
+    // 修复index.js中的路径引用问题
+    this.fixIndexJsPaths(projectPath);
+  }
+
+  /**
+   * 修复index.js中的路径引用问题
+   */
+  fixIndexJsPaths(projectPath) {
+    const indexJsPath = path.join(projectPath, 'src', 'index.js');
+    
+    if (!fs.existsSync(indexJsPath)) {
+      return;
+    }
+    
+    try {
+      let content = fs.readFileSync(indexJsPath, 'utf8');
+      
+      // 将 ./scripts/xxx 替换为 ./xxx
+      content = content.replace(/require\('\.\/scripts\/([^']+)'\)/g, "require('./$1')");
+      
+      fs.writeFileSync(indexJsPath, content, 'utf8');
+      console.log('  ✅ 已修复index.js中的路径引用');
+    } catch (error) {
+      console.log(`  ⚠️  修复index.js路径失败: ${error.message}`);
+    }
   }
 
   /**
