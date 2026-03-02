@@ -1,19 +1,33 @@
 {
   "projects": [
     {
-      "name": "frontend-weekly",
+      "name": "ai-news",
+      "description": "AI新闻技术日报",
       "options": {
-        "createGitHub": false,
         "llmProvider": "openai",
-        "model": "gpt-3.5-turbo"
+        "model": "gpt-3.5-turbo",
+        "limitArticles": 15,
+        "createGitHub": true
       }
     },
     {
-      "name": "backend-daily",
+      "name": "frontend-digest",
+      "description": "前端技术周刊",
       "options": {
-        "createGitHub": true,
+        "llmProvider": "deepseek",
+        "model": "deepseek-chat",
+        "limitArticles": 20,
+        "createGitHub": true
+      }
+    },
+    {
+      "name": "backend-insights",
+      "description": "后端技术洞察",
+      "options": {
         "llmProvider": "openai",
-        "model": "gpt-4"
+        "model": "gpt-4",
+        "limitArticles": 10,
+        "createGitHub": false
       }
     }
   ]
