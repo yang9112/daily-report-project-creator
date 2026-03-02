@@ -23,8 +23,8 @@ describe('i18n', () => {
     });
 
     test('should replace parameters', () => {
-      const message = i18n.t('project.validation.empty');
-      expect(message).toBe('项目名称不能为空且必须是字符串');
+      const message = i18n.t('project.created', { name: 'test' });
+      expect(message).toBe('✅ 日报项目创建成功: test');
     });
   });
 
