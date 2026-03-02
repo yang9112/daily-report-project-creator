@@ -180,6 +180,20 @@ if (require.main === module) {
   const batchCreator = new BatchProjectCreator()
 
   switch (action) {
+    case 'help':
+    case '--help':
+    case '-h':
+      /* eslint-disable no-console */
+      console.log('🚀 批量日报项目创建器')
+      console.log('')
+      console.log('用法:')
+      console.log('  node batch-create.js config                    # 生成示例配置文件')
+      console.log('  node batch-create.js interactive              # 交互式配置')
+      console.log('  node batch-create.js file <config-path>       # 从配置文件创建')
+      console.log('  node batch-create.js help                     # 显示帮助')
+      /* eslint-enable no-console */
+      break
+
     case 'config':
       batchCreator.generateExampleConfig()
       break
@@ -205,6 +219,20 @@ if (require.main === module) {
         console.log('用法: node batch-create.js file <config-path>')
         /* eslint-enable no-console */
         process.exit(1)
+      }
+
+      // 检查是否为帮助请求
+      if (configPath && (configPath === 'help' || configPath === '--help' || configPath === '-h')) {
+        /* eslint-disable no-console */
+        console.log('🚀 批量日报项目创建器')
+        console.log('')
+        console.log('用法:')
+        console.log('  node batch-create.js config                    # 生成示例配置文件')
+        console.log('  node batch-create.js interactive              # 交互式配置')
+        console.log('  node batch-create.js file <config-path>       # 从配���文件创建')
+        console.log('  node batch-create.js help                     # 显示帮助')
+        /* eslint-enable no-console */
+        process.exit(0)
       }
 
       batchCreator.batchCreateFromConfig(configPath)

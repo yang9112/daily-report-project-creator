@@ -752,6 +752,12 @@ if (require.main === module) {
     .option('-l, --lang <language>', '指定语言 (zh-CN, en-US)', 'zh-CN')
     .option('--no-github', '不创建GitHub仓库')
     .action((projectName, options) => {
+      // 检查是否为帮助请求
+      if (projectName && (projectName === 'help' || projectName === '--help' || projectName === '-h')) {
+        program.outputHelp()
+        return
+      }
+      
       // 设置语言
       i18n.setLocale(options.lang)
       
