@@ -1,0 +1,56 @@
+{
+  "project": {
+    "creating": "🚀 Creating daily report project: {name}",
+    "created": "✅ Daily report project created successfully: {name}",
+    "creation_complete": "🎉 Project creation completed!",
+    "exists": "⚠️  Project directory already exists: {path}",
+    "not_found": "❌ Base skill directory not found: {path}",
+    "validation": {
+      "empty": "Project name cannot be empty and must be a string",
+      "trim_empty": "Project name cannot be empty",
+      "too_long": "Project name cannot exceed 50 characters",
+      "invalid_chars": "Project name can only contain letters, numbers, underscores, and hyphens"
+    }
+  },
+  "batch": {
+    "creating": "📦 Starting to create {count} projects in batch...",
+    "processing": "🔄 Processing: {name}",
+    "created": "✅ Project created successfully: {name}",
+    "failed": "❌ Project creation failed: {name} - {error}",
+    "completed": "🎉 Batch creation completed! Success: {success}, Failed: {failed}"
+  },
+  "validation": {
+    "checking": "🔍 Starting project validation...",
+    "structure": "📁 Validating project structure...",
+    "package": "📦 Validating package.json...",
+    "skill": "📋 Validating SKILL.md...",
+    "agent": "🤖 Validating Agent.md...",
+    "scripts": "🔧 Validating script files...",
+    "gitignore": "🙈 Validating .gitignore...",
+    "docs": "📚 Validating documentation completeness...",
+    "security": "🔒 Validating security...",
+    "dependencies": "📋 Validating dependencies...",
+    "complete": "🎉 All validations passed! Project structure is complete and compliant.",
+    "score": "📈 Project quality score: {score}/100"
+  },
+  "error": {
+    "file_not_found": "File not found: {path}",
+    "validation_failed": "Validation failed: {error}",
+    "creation_failed": "Project creation failed: {error}",
+    "config_error": "Configuration error: {error}"
+  },
+  "scripts": {
+    "copying_files": "📋 Copying core code files...",
+    "creating_structure": "📁 Creating project directory structure...",
+    "generating_config": "⚙️ Generating configuration files...",
+    "generating_docs": "📚 Generating project documentation...",
+    "skill_copied": "  ✅ SKILL.md copied",
+    "skill_generated": "  ✅ SKILL.md generated",
+    "skill_failed": "  ⚠️ SKILL.md generation failed: {error}",
+    "init_git": "🔧 Initializing Git repository...",
+    "git_init_success": "  ✅ Git repository initialized",
+    "git_init_failed": "  ⚠️ Git initialization failed: {error}",
+    "creating_github": "🌐 Creating GitHub repository...",
+    "github_failed": "  ⚠️ GitHub repository creation failed: {error}"
+  }
+}
