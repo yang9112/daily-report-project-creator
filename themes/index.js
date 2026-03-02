@@ -100,7 +100,7 @@ class ThemeManager {
           infoSign: '💡',
           folder: '📂',
           file: '📝',
-          code: '👨‍💻',
+          code: '👨💻',
           settings: '🔧',
           clock: '⏰',
           heart: '💖',
