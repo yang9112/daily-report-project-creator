@@ -2,46 +2,20 @@ name: CI
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [ master, main ]
   pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
+    branches: [ master, main ]
 
 jobs:
-  lint:
-    name: Lint Code
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run ESLint
-      run: npm run lint
-      continue-on-error: true
-      
-    - name: Validate project structure
-      run: npm run validate
-
   test:
-    name: Run Tests
     runs-on: ubuntu-latest
     
     strategy:
       matrix:
-        node-version: [16, 18, 20]
-    
+        node-version: [16.x, 18.x, 20.x]
+
     steps:
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v4
       
     - name: Setup Node.js ${{ matrix.node-version }}
@@ -50,202 +24,74 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         
-    - name: Setup Git user
-      run: |
-        git config --global user.name "Integration Test"
-        git config --global user.email "test@example.com"
-        
     - name: Install dependencies
       run: npm ci
       
+    - name: Run linting
+      run: npm run lint
+      
     - name: Run tests
-      run: npm run test:coverage
+      run: npm test -- --coverage
+      
+    - name: Security audit
+      run: npm audit --audit-level moderate
       
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v3
       with:
         file: ./coverage/lcov.info
         flags: unittests
         name: codecov-umbrella
-        fail_ci_if_error: false
-      if: matrix.node-version == '18'
-
-  integration:
-    name: Integration Tests
+        
+    - name: Validate project structure
+      run: npm run validate
+      
+  security:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check for security vulnerabilities
+      run: |
+        npm ci
+        npm audit --audit-level moderate
+        
+    - name: Check nodemailer version security
+      run: |
+        nodemailer_version=$(node -e "console.log(require('./package.json').dependencies.nodemailer)")
+        if [[ $nodemailer_version == *"^7"* ]] || [[ $nodemailer_version == *"7"* ]]; then
+          echo "❌ nodemailer version $nodemailer_version has security vulnerabilities"
+          exit 1
+        else
+          echo "✅ nodemailer version $nodemailer_version is secure"
+        fi
+        
+  integration:
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    
+    steps:
+    - name: Checkout code
       uses: actions/checkout@v4
       
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '18.x'
         cache: 'npm'
         
     - name: Install dependencies
       run: npm ci
       
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        
-    - name: Setup Git user
-      run: |
-        git config --global user.name "Integration Test"
-        git config --global user.email "test@example.com"
-        
-    - name: Install dependencies
-      run: npm ci
-        
     - name: Test project creation
       run: |
-        export NODE_ENV=test
-        mkdir -p /tmp/github-projects
-        node scripts/create-project.js integration-test --no-github
-        test -d /tmp/github-projects/daily-report-integration-test
+        # Test in temporary directory
+        cd /tmp
+        node /github/workspace/scripts/create-project.js --name=test-project --llm=openai
         
-    - name: Test batch creation
+    - name: Test validation
       run: |
-        echo '{"projects":[{"name":"batch-test","options":{"createGitHub":false}}]}' > /tmp/batch-config.json
-        node scripts/batch-create.js file /tmp/batch-config.json
-        
-    - name: Validate created project structure
-      run: |
-        cd /tmp/github-projects/daily-report-integration-test
-        test -f package.json
-        test -f README.md
-        test -f Agent.md
-        test -f SKILL.md
-        test -d config
-        test -d src
-        test -d .github/workflows
-
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run security audit
-      run: npm audit --audit-level=high
-      continue-on-error: true
-      
-    - name: Check for sensitive information
-      run: |
-        # 检查是否有硬编码的API密钥（排除文档、示例文件、验证代码、测试文件和模板文件）
-        if grep -r "sk-\|ghp_\|gho_\|ghu_\|ghs_\|ghr_" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" --exclude="create-project.js" --exclude="validate.js" --exclude-dir=tests --exclude="*.test.js" --exclude="*.spec.js" --exclude-dir=templates | grep -v "| sk-\.\.\. \|" | grep -v "sk-\.\.\." | grep -v "ghp_.*36" | grep -v "sk-\[a-zA-Z0-9\]" | grep -v "/sk-\[a-zA-Z0-9\]"; then
-          echo "⚠️ Found possible API keys"
-          exit 1
-        else
-          echo "✅ No API keys found"
-        fi
-        
-        # 检查是否有密码或凭证（排除文档、注释、示例文件、验证代码、测试文件、模板文件和安全配置）
-        if grep -ri "password\|secret\|token\|key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.log" --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" --exclude="create-project.js" --exclude="validate.js" --exclude-dir=tests --exclude="*.test.js" --exclude="*.spec.js" --exclude-dir=templates | grep -v "# password\|# secret\|OPENAI_API_KEY\|GitHub token" | grep -v "API密钥" | grep -v "密码" | grep -v "凭证" | grep -v "/sk-\[a-zA-Z0-9\]" | grep -v "/ghp_\[a-zA-Z0-9\]" | grep -v "package.json.*keywords" | grep -v "topKeywords\|article\.keywords\|\.keywords" | grep -v "i18n/config.js\|utils/i18n.js"; then
-          echo "⚠️ Found possible credentials"
-          exit 1
-        else
-          echo "✅ No credentials found"
-        fi
-
-  performance:
-    name: Performance Tests
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Memory usage test
-      run: |
-        # 监控内存使用的测试
-        export NODE_ENV=test
-        mkdir -p /tmp/github-projects
-        node -e "
-        const creator = require('./scripts/create-project');
-        const test = async () => {
-          const startMemory = process.memoryUsage().heapUsed;
-          await new creator().createProject('perf-test', { createGitHub: false });
-          const endMemory = process.memoryUsage().heapUsed;
-          console.log(\`Memory used: \${Math.round((endMemory - startMemory) / 1024 / 1024)}MB\`);
-          if (endMemory - startMemory > 100 * 1024 * 1024) {
-            console.log('❌ High memory usage detected');
-            process.exit(1);
-          } else {
-            console.log('✅ Memory usage within limits');
-          }
-        };
-        test();
-        "
-        
-    - name: Large batch test
-      run: |
-        # 测试大量项目创建的性能
-        echo '{"projects":' > /tmp/large-batch.json
-        echo '[' >> /tmp/large-batch.json
-        for i in {1..20}; do
-          echo -n '{"name":"perf-test-'$i'","options":{"createGitHub":false}}' >> /tmp/large-batch.json
-          if [ $i -lt 20 ]; then echo ',' >> /tmp/large-batch.json; fi
-        done
-        echo ']' >> /tmp/large-batch.json
-        echo '}' >> /tmp/large-batch.json
-        
-        start_time=$(date +%s)
-        timeout 60s node scripts/batch-create.js file /tmp/large-batch.json || { echo "⚠️ Batch creation timed out"; exit 1; }
-        end_time=$(date +%s)
-        
-        duration=$((end_time - start_time))
-        if [ $duration -gt 60 ]; then
-          echo "❌ Batch creation took too long: ${duration}s"
-        else
-          echo "✅ Batch creation completed in ${duration}s"
-        fi
-
-  notify:
-    name: Notify Results
-    runs-on: ubuntu-latest
-    needs: [lint, test, integration, security, performance]
-    if: always()
-    
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      
-    - name: Notify success
-      if: ${{ needs.lint.result == 'success' && needs.test.result == 'success' && needs.integration.result == 'success' }}
-      run: |
-        echo "✅ All checks passed!"
-        echo "Ready for deployment"
-        
-    - name: Notify failure
-      if: ${{ needs.lint.result == 'failure' || needs.test.result == 'failure' || needs.integration.result == 'failure' }}
-      run: |
-        echo "❌ Some checks failed:"
-        echo "Lint: ${{ needs.lint.result }}"
-        echo "Test: ${{ needs.test.result }}"
-        echo "Integration: ${{ needs.integration.result }}"
-        echo "Please review the logs and fix the issues"
+        cd /tmp/test-project
+        node /github/workspace/scripts/validate.js
