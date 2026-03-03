@@ -10,7 +10,7 @@ describe('Theme System', () => {
     test('should have all expected themes', () => {
       const themes = themeManager.getThemeList()
       const themeNames = themes.map(t => t.name)
-      
+
       expect(themeNames).toContain('default')
       expect(themeNames).toContain('minimal')
       expect(themeNames).toContain('vibrant')
@@ -22,10 +22,10 @@ describe('Theme System', () => {
     test('should set theme successfully', () => {
       expect(themeManager.setTheme('professional')).toBe(true)
       expect(themeManager.getCurrentTheme().name).toBe('专业主题')
-      
+
       expect(themeManager.setTheme('dark')).toBe(true)
       expect(themeManager.getCurrentTheme().name).toBe('深色主题')
-      
+
       expect(themeManager.setTheme('colorful')).toBe(true)
       expect(themeManager.getCurrentTheme().name).toBe('彩虹主题')
     })
@@ -90,7 +90,7 @@ describe('Theme System', () => {
         info: jest.fn(),
         debug: jest.fn()
       }
-      
+
       // Mock console methods
       const originalConsole = global.console
       global.console = consoleSpy
@@ -125,7 +125,7 @@ describe('Theme System', () => {
           write: jest.fn()
         }
       }
-      
+
       const originalProcess = global.process
       global.process = { ...originalProcess, stdout: processSpy.stdout }
 
@@ -145,16 +145,16 @@ describe('Theme System', () => {
         warn: jest.fn(),
         info: jest.fn()
       }
-      
+
       const originalConsole = global.console
       global.console = consoleSpy
 
       const tree = {
-        'folder1': {
+        folder1: {
           'file1.js': null,
           'file2.css': null
         },
-        'folder2': {},
+        folder2: {},
         'file3.md': null
       }
 
@@ -172,7 +172,6 @@ describe('Theme System', () => {
 
       themes.forEach(themeName => {
         themeManager.setTheme(themeName)
-        const styler = new ConsoleStyler(themeName)
         const title = themeManager.applyStyle('title', '测试标题')
         titleStyles.push(title)
       })
@@ -184,11 +183,11 @@ describe('Theme System', () => {
 
     test('should support all color types', () => {
       const themes = themeManager.getThemeList()
-      
+
       themes.forEach(({ name }) => {
         themeManager.setTheme(name)
         const theme = themeManager.getCurrentTheme()
-        
+
         expect(theme.colors).toHaveProperty('success')
         expect(theme.colors).toHaveProperty('warning')
         expect(theme.colors).toHaveProperty('error')
@@ -199,11 +198,11 @@ describe('Theme System', () => {
 
     test('should support all style types', () => {
       const themes = themeManager.getThemeList()
-      
+
       themes.forEach(({ name }) => {
         themeManager.setTheme(name)
         const theme = themeManager.getCurrentTheme()
-        
+
         expect(theme.styles).toHaveProperty('title')
         expect(theme.styles).toHaveProperty('section')
         expect(theme.styles).toHaveProperty('bullet')
@@ -218,7 +217,7 @@ describe('Theme System', () => {
   describe('Theme Integration', () => {
     test('should work with existing console output methods', () => {
       const styler = new ConsoleStyler('vibrant')
-      
+
       // Mock all console methods
       const originalConsole = global.console
       global.console = {
@@ -228,27 +227,27 @@ describe('Theme System', () => {
         info: jest.fn(),
         debug: jest.fn()
       }
-      
+
       expect(() => {
         styler.success('测试')
         styler.error('测试')
         styler.warn('测试')
         styler.info('测试')
       }).not.toThrow()
-      
+
       // Restore console
       global.console = originalConsole
     })
 
     test('should handle complex formatting', () => {
       themeManager.setTheme('professional')
-      
+
       const headers = ['功能', '状态', '进度']
       const rows = [
         { 功能: '主题系统', 状态: '完成', 进度: '100%' },
         { 功能: '国际化', 状态: '进行中', 进度: '80%' }
       ]
-      
+
       const table = themeManager.createTable(headers, rows)
       expect(table).toContain('主题系统')
       expect(table).toContain('完成')
@@ -257,11 +256,11 @@ describe('Theme System', () => {
     test('should create valid progress bars', () => {
       ['minimal', 'professional', 'dark', 'colorful'].forEach(themeName => {
         themeManager.setTheme(themeName)
-        
+
         const progress25 = themeManager.createProgress(2.5, 10)
         const progress50 = themeManager.createProgress(5, 10)
         const progress100 = themeManager.createProgress(10, 10)
-        
+
         expect(progress25).toContain('25')
         expect(progress50).toContain('50')
         expect(progress100).toContain('100')
