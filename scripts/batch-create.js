@@ -52,15 +52,15 @@ class BatchProjectCreator {
 
     const configContent = fs.readFileSync(configPath, 'utf8')
     const config = JSON.parse(configContent)
-    
+
     if (!config.projects) {
       throw new Error('配置文件格式错误: 缺少projects字段')
     }
-    
+
     if (!Array.isArray(config.projects)) {
       throw new Error('配置文件格式错误: projects字段必须是数组')
     }
-    
+
     return config
   }
 
@@ -164,32 +164,32 @@ class BatchProjectCreator {
 // 命令行接口
 if (require.main === module) {
   const program = new Command()
-  
+
   program
     .name('daily-report-batch')
     .description('批量创建日报项目')
     .version('1.0.0')
     .option('-l, --lang <language>', '指定语言 (zh-CN, en-US, ja-JP, ko-KR)', 'zh-CN')
     .option('-t, --theme <theme>', '指定主题 (default, minimal, vibrant)', 'default')
-  
+
   program
     .command('config')
     .description('生成示例配置文件')
     .action((options) => {
       // 设置语言
       i18n.setLocale(program.opts().lang)
-      
+
       const batchCreator = new BatchProjectCreator(program.opts().theme)
       batchCreator.generateExampleConfig()
     })
-  
+
   program
     .command('interactive')
     .description('交互式配置')
     .action((options) => {
       // 设置语言
       i18n.setLocale(program.opts().lang)
-      
+
       const batchCreator = new BatchProjectCreator(program.opts().theme)
       batchCreator.interactiveConfig()
         .then(configPath => {
@@ -200,14 +200,14 @@ if (require.main === module) {
           process.exit(1)
         })
     })
-  
+
   program
     .command('file <config-path>')
     .description('从配置文件创建项目')
     .action((configPath, options) => {
       // 设置语言
       i18n.setLocale(program.opts().lang)
-      
+
       const batchCreator = new BatchProjectCreator(program.opts().theme)
       batchCreator.batchCreateFromConfig(configPath)
         .catch(error => {
@@ -215,7 +215,7 @@ if (require.main === module) {
           process.exit(1)
         })
     })
-  
+
   program.parse()
 }
 

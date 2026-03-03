@@ -5,7 +5,8 @@
   "main": "scripts/create-project.js",
   "bin": {
     "daily-report-create": "scripts/create-project.js",
-    "daily-report-batch": "scripts/batch-create.js"
+    "daily-report-batch": "scripts/batch-create.js",
+    "theme-preview": "scripts/theme-preview.js"
   },
   "scripts": {
     "test": "jest",
@@ -15,6 +16,7 @@
     "validate": "node scripts/validate.js",
     "create": "node scripts/create-project.js",
     "batch": "node scripts/batch-create.js",
+    "theme": "node scripts/theme-preview.js",
     "example": "node scripts/batch-create.js config",
     "precommit": "npm run lint && npm run test",
     "posttest": "npm run validate"
