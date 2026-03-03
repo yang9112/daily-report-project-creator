@@ -794,7 +794,7 @@ if (require.main === module) {
     .version('1.0.0')
     .argument('<project-name>', '项目名称')
     .option('-l, --lang <language>', '指定语言 (zh-CN, en-US, ja-JP, ko-KR)', 'zh-CN')
-    .option('-t, --theme <theme>', '指定主题 (default, minimal, vibrant)', 'default')
+    .option('-t, --theme <theme>', '指定主题 (default, minimal, vibrant, professional, dark, colorful)', 'default')
     .option('--no-github', '不创建GitHub仓库')
     .action((projectName, options) => {
       // 检查是否为帮助请求

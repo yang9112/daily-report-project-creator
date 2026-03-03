@@ -2,6 +2,11 @@
  * 主题样式系统
  */
 
+// 导入新增的主题
+const professional = require('./professional')
+const dark = require('./dark')
+const colorful = require('./colorful')
+
 class ThemeManager {
   constructor() {
     this.currentTheme = 'default'
@@ -122,7 +127,10 @@ class ThemeManager {
           separator: () => '\n' + '🌟'.repeat(20) + '\n',
           progress: (current, total) => `📊 ${'🟢'.repeat(Math.round(current/total*10))}${'⚪'.repeat(10-Math.round(current/total*10))} ${Math.round(current/total*100)}% 📊`
         }
-      }
+      },
+      professional,
+      dark,
+      colorful
     }
   }
 
