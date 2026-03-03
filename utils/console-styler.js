@@ -235,9 +235,13 @@ class ConsoleStyler {
    * 显示文件树结构
    */
   fileTree(tree, level = 0) {
+    if (!tree || typeof tree !== 'object') {
+      return
+    }
+    
     Object.entries(tree).forEach(([name, content]) => {
       const prefix = '  '.repeat(level)
-      if (typeof content === 'object') {
+      if (content && typeof content === 'object') {
         console.log(`${prefix}${this.theme.colors.folder} ${name}/`)
         this.fileTree(content, level + 1)
       } else {
