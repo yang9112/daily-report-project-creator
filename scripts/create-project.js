@@ -181,32 +181,32 @@ class DailyReportProjectCreator {
       start: 'node src/index.js',
       test: 'jest',
       lint: 'eslint src/ --fix',
-      'setup': 'npm install && cp config/config.example.json config/config.json',
-      'help': 'node src/index.js --help'
+      setup: 'npm install && cp config/config.example.json config/config.json',
+      help: 'node src/index.js --help'
     }
 
     // 确保dependencies字段存在
     if (!packageJson.dependencies) {
       packageJson.dependencies = {
-        "axios": "^1.6.0",
-        "commander": "^11.0.0",
-        "fs-extra": "^11.3.3",
-        "yargs": "^18.0.0"
+        axios: '^1.6.0',
+        commander: '^11.0.0',
+        'fs-extra': '^11.3.3',
+        yargs: '^18.0.0'
       }
     }
 
     // 确保devDependencies字段存在
     if (!packageJson.devDependencies) {
       packageJson.devDependencies = {
-        "@types/jest": "^29.5.0",
-        "eslint": "^8.55.0",
-        "eslint-config-standard": "^17.1.0",
-        "eslint-plugin-import": "^2.29.0",
-        "eslint-plugin-node": "^11.1.0",
-        "eslint-plugin-promise": "^6.1.0",
-        "inquirer": "^9.2.0",
-        "jest": "^29.7.0",
-        "supertest": "^6.3.0"
+        '@types/jest': '^29.5.0',
+        eslint: '^8.55.0',
+        'eslint-config-standard': '^17.1.0',
+        'eslint-plugin-import': '^2.29.0',
+        'eslint-plugin-node': '^11.1.0',
+        'eslint-plugin-promise': '^6.1.0',
+        inquirer: '^9.2.0',
+        jest: '^29.7.0',
+        supertest: '^6.3.0'
       }
     }
 
@@ -746,7 +746,7 @@ jobs:
     try {
       // 使用 --quiet ���数来抑制Git警告
       const gitOptions = { cwd: projectPath, stdio: process.env.NODE_ENV === 'test' ? 'pipe' : 'inherit' }
-      
+
       execSync('git init --quiet', gitOptions)
       execSync('git config user.email "test@example.com"', gitOptions)
       execSync('git config user.name "Test User"', gitOptions)
@@ -787,7 +787,7 @@ jobs:
 // 命令行接口
 if (require.main === module) {
   const program = new Command()
-  
+
   program
     .name('daily-report-create')
     .description('创建新的日报项目')
@@ -802,10 +802,10 @@ if (require.main === module) {
         program.outputHelp()
         return
       }
-      
+
       // 设置语言
       i18n.setLocale(options.lang)
-      
+
       const creator = new DailyReportProjectCreator(i18n, options.theme)
       creator.createProject(projectName, { createGitHub: options.github })
         .then(() => {
@@ -816,7 +816,7 @@ if (require.main === module) {
           process.exit(1)
         })
     })
-  
+
   program.parse()
 }
 
