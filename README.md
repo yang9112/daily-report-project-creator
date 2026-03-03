@@ -7,7 +7,7 @@
 - 🎯 **项目模板生成** - 一键创建完整的日报项目结构
 - 🤖 **多LLM支持** - 支持OpenAI、Anthropic、Gemini等主流LLM
 - 📧 **邮件集成** - 内置nodemailer 8.x安全邮件发送
-- 📊 **数据持久化** - MongoDB集成存储日报数据
+- 📊 **数据持久化** - SQLite数据库存储日报数据，零配置部署
 - 🕐 **定时任务** - 自动生成和发送日报
 - 🐳 **Docker支持** - 容器化部署支持
 - 🧪 **完整测试** - 单元测试覆盖
@@ -72,7 +72,7 @@ SMTP_USER=your_email@gmail.com
 SMTP_PASS=your_app_password
 
 # 数据库配置
-DATABASE_URL=mongodb://localhost:27017/daily-report
+DB_PATH=./data/daily_report.db
 ```
 
 ## 安全更新
@@ -149,8 +149,12 @@ curl -H "Authorization: Bearer YOUR_API_KEY" https://api.openai.com/v1/models
 
 #### 3. 数据库连接问题
 ```bash
-# 检查MongoDB状态
-systemctl status mongod
+# 检查SQLite数据库文件
+ls -la ./data/daily_report.db
+
+# 确保data目录存在且有写权限
+mkdir -p ./data
+chmod 755 ./data
 ```
 
 ## 版本历史
