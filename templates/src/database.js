@@ -17,6 +17,63 @@ class Database {
 
   async connect () {
     this.db = new BetterSqlite3(this.dbPath)
+    await this.initTables()
+  }
+
+  async initTables () {
+    try {
+      // 创建sources表
+      const createSourcesTable = `
+                CREATE TABLE IF NOT EXISTS sources (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    feed_url TEXT NOT NULL UNIQUE,
+                    last_checked DATETIME,
+                    is_active INTEGER DEFAULT 1,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `
+
+      // 创建articles表
+      const createArticlesTable = `
+                CREATE TABLE IF NOT EXISTS articles (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    source_id INTEGER NOT NULL,
+                    title TEXT NOT NULL,
+                    link TEXT NOT NULL UNIQUE,
+                    published_at DATETIME,
+                    raw_content TEXT,
+                    summary TEXT,
+                    status TEXT DEFAULT 'new',
+                    featured INTEGER DEFAULT 0,
+                    sent INTEGER DEFAULT 0,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (source_id) REFERENCES sources (id)
+                )
+            `
+
+      // 创建索引
+      const createIndexes = [
+        'CREATE INDEX IF NOT EXISTS idx_articles_source_id ON articles (source_id)',
+        'CREATE INDEX IF NOT EXISTS idx_articles_status ON articles (status)',
+        'CREATE INDEX IF NOT EXISTS idx_articles_featured ON articles (featured)',
+        'CREATE INDEX IF NOT EXISTS idx_articles_published_at ON articles (published_at)',
+        'CREATE INDEX IF NOT EXISTS idx_articles_link ON articles (link)',
+        'CREATE INDEX IF NOT EXISTS idx_sources_is_active ON sources (is_active)'
+      ]
+
+      this.db.exec(createSourcesTable)
+      this.db.exec(createArticlesTable)
+
+      createIndexes.forEach(indexSql => {
+        this.db.exec(indexSql)
+      })
+
+      console.log('✅ 数据库表初始化完成')
+    } catch (error) {
+      console.error('❌ 数据库表初始化失败:', error.message)
+      throw error
+    }
   }
 
   async addSource (name, feedUrl, isActive = true) {
@@ -233,6 +290,38 @@ class Database {
 
     const stmt = this.db.prepare(sql)
     return stmt.all()
+  }
+
+  // 获取源统计信息
+  async getSourceStats () {
+    const sql = `
+            SELECT 
+                s.id,
+                s.name,
+                s.feed_url,
+                s.last_checked,
+                s.is_active,
+                COUNT(a.id) as article_count,
+                SUM(CASE WHEN a.status = 'processed' THEN 1 ELSE 0 END) as processed_count
+            FROM sources s
+            LEFT JOIN articles a ON s.id = a.source_id
+            GROUP BY s.id, s.name, s.feed_url, s.last_checked, s.is_active
+            ORDER BY s.name
+        `
+
+    const stmt = this.db.prepare(sql)
+    return stmt.all()
+  }
+
+  // 获取数据库大小
+  getDatabaseSize () {
+    try {
+      const stats = this.db.prepare('SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size()').get()
+      const sizeMB = (stats.size / (1024 * 1024)).toFixed(2)
+      return { sizeBytes: stats.size, sizeMB: parseFloat(sizeMB) }
+    } catch (error) {
+      return { sizeBytes: 0, sizeMB: 0 }
+    }
   }
 }
 
