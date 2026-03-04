@@ -5,7 +5,7 @@
 const I18nConfig = require('../i18n/config')
 
 class I18n {
-  constructor() {
+  constructor () {
     this.config = new I18nConfig()
     this.currentLocale = this.getLocale()
   }
@@ -13,7 +13,7 @@ class I18n {
   /**
    * 获取当前语言环境
    */
-  getLocale() {
+  getLocale () {
     // 优先使用命令行参数指定的语言
     const args = process.argv.slice(2)
     const langIndex = args.findIndex(arg => arg === '--lang' || arg === '-l')
@@ -41,21 +41,21 @@ class I18n {
   /**
    * 获取国际化文本
    */
-  t(key, variables = {}) {
+  t (key, variables = {}) {
     let message = this.config.getMessage(key, this.currentLocale)
-    
+
     // 处理变量替换
     Object.keys(variables).forEach(variable => {
       message = message.replace(new RegExp(`\\{${variable}\\}`, 'g'), variables[variable])
     })
-    
+
     return message
   }
 
   /**
    * 设置语言
    */
-  setLocale(locale) {
+  setLocale (locale) {
     if (this.config.supportedLocales.includes(locale)) {
       this.currentLocale = locale
       return true
@@ -66,7 +66,7 @@ class I18n {
   /**
    * 获取支持的语言列表
    */
-  getSupportedLocales() {
+  getSupportedLocales () {
     return this.config.supportedLocales
   }
 }

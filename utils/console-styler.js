@@ -5,14 +5,14 @@
 const themeManager = require('../themes')
 
 class ConsoleStyler {
-  constructor(theme = 'default') {
+  constructor (theme = 'default') {
     this.setTheme(theme)
   }
 
   /**
    * 设置主题
    */
-  setTheme(themeName) {
+  setTheme (themeName) {
     if (themeManager.setTheme(themeName)) {
       this.theme = themeManager.getCurrentTheme()
       return true
@@ -23,14 +23,14 @@ class ConsoleStyler {
   /**
    * 获取当前主题
    */
-  getTheme() {
+  getTheme () {
     return this.theme
   }
 
   /**
    * 成功消息
    */
-  success(message, details = '') {
+  success (message, details = '') {
     console.log(this.theme.colors.success, message)
     if (details) {
       console.log(this.theme.styles.indent(details))
@@ -40,7 +40,7 @@ class ConsoleStyler {
   /**
    * 错误消息
    */
-  error(message, details = '') {
+  error (message, details = '') {
     console.error(this.theme.colors.error, message)
     if (details) {
       console.error(this.theme.styles.indent(details))
@@ -50,7 +50,7 @@ class ConsoleStyler {
   /**
    * 警告消息
    */
-  warn(message, details = '') {
+  warn (message, details = '') {
     console.warn(this.theme.colors.warning, message)
     if (details) {
       console.warn(this.theme.styles.indent(details))
@@ -60,7 +60,7 @@ class ConsoleStyler {
   /**
    * 信息消息
    */
-  info(message, details = '') {
+  info (message, details = '') {
     console.info(this.theme.colors.info, message)
     if (details) {
       console.info(this.theme.styles.indent(details))
@@ -70,7 +70,7 @@ class ConsoleStyler {
   /**
    * 调试消息
    */
-  debug(message, details = '') {
+  debug (message, details = '') {
     if (process.env.DEBUG) {
       console.debug(this.theme.colors.debug, message)
       if (details) {
@@ -82,98 +82,98 @@ class ConsoleStyler {
   /**
    * 标题
    */
-  title(text) {
+  title (text) {
     console.log(this.theme.styles.title(text))
   }
 
   /**
    * 章节标题
    */
-  section(text) {
+  section (text) {
     console.log(this.theme.styles.section(text))
   }
 
   /**
    * 分隔线
    */
-  separator() {
+  separator () {
     console.log(this.theme.styles.separator())
   }
 
   /**
    * 项目符号列表
    */
-  bullet(text, level = 0) {
+  bullet (text, level = 0) {
     console.log(this.theme.styles.indent(this.theme.styles.bullet(text), level))
   }
 
   /**
    * 编号列表
    */
-  number(num, text, level = 0) {
+  number (num, text, level = 0) {
     console.log(this.theme.styles.indent(this.theme.styles.number(num, text), level))
   }
 
   /**
    * 进度条
    */
-  progress(current, total, label = '') {
+  progress (current, total, label = '') {
     console.log(themeManager.createProgress(current, total, label))
   }
 
   /**
    * 状态消息
    */
-  status(type, message, details = '') {
+  status (type, message, details = '') {
     console.log(themeManager.createStatusMessage(type, message, details))
   }
 
   /**
    * 代码块
    */
-  code(text) {
+  code (text) {
     console.log(this.theme.styles.code(text))
   }
 
   /**
    * 引用块
    */
-  blockquote(text) {
+  blockquote (text) {
     console.log(this.theme.styles.blockquote(text))
   }
 
   /**
    * 粗体文本 (在支持的终端中)
    */
-  bold(text) {
+  bold (text) {
     console.log(this.theme.styles.bold(text))
   }
 
   /**
    * 斜体文本 (在支持的终端中)
    */
-  italic(text) {
+  italic (text) {
     console.log(this.theme.styles.italic(text))
   }
 
   /**
    * 表格输出
    */
-  table(headers, rows, options = {}) {
+  table (headers, rows, options = {}) {
     console.log(themeManager.createTable(headers, rows, options))
   }
 
   /**
    * 列表输出
    */
-  list(items, options = {}) {
+  list (items, options = {}) {
     console.log(themeManager.createList(items, options))
   }
 
   /**
    * 刷新进度显示
    */
-  updateProgress(current, total, label = '') {
+  updateProgress (current, total, label = '') {
     // 使用 \r 回到行首覆盖输出
     process.stdout.write(`\r${themeManager.createProgress(current, total, label)}`)
     if (current >= total) {
@@ -184,33 +184,33 @@ class ConsoleStyler {
   /**
    * 创建交互式选择菜单
    */
-  menu(title, options, selectedIndex = 0) {
+  menu (title, options, selectedIndex = 0) {
     this.title(title)
-    
+
     options.forEach((option, index) => {
       const prefix = index === selectedIndex ? this.theme.colors.target : ' '
-      const text = index === selectedIndex 
+      const text = index === selectedIndex
         ? this.theme.styles.bold(option)
         : option
       this.number(index + 1, `${prefix} ${text}`)
     })
-    
+
     return selectedIndex
   }
 
   /**
    * 显示加载动画
    */
-  spinner(message, duration = 2000) {
+  spinner (message, duration = 2000) {
     const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
     let i = 0
-    
+
     return new Promise(resolve => {
       const interval = setInterval(() => {
         process.stdout.write(`\r${frames[i]} ${message}`)
         i = (i + 1) % frames.length
       }, 100)
-      
+
       setTimeout(() => {
         clearInterval(interval)
         process.stdout.write('\r' + ' '.repeat(message.length + 5) + '\r')
@@ -222,7 +222,7 @@ class ConsoleStyler {
   /**
    * 高亮显示关键词
    */
-  highlight(text, keywords) {
+  highlight (text, keywords) {
     let result = text
     keywords.forEach(keyword => {
       const regex = new RegExp(`(${keyword})`, 'gi')
@@ -234,11 +234,11 @@ class ConsoleStyler {
   /**
    * 显示文件树结构
    */
-  fileTree(tree, level = 0) {
+  fileTree (tree, level = 0) {
     if (!tree || typeof tree !== 'object') {
       return
     }
-    
+
     Object.entries(tree).forEach(([name, content]) => {
       const prefix = '  '.repeat(level)
       if (content && typeof content === 'object') {
@@ -253,7 +253,7 @@ class ConsoleStyler {
   /**
    * 显示时间戳
    */
-  timestamp(message) {
+  timestamp (message) {
     const now = new Date().toLocaleTimeString()
     console.log(`${this.theme.colors.clock} [${now}] ${message}`)
   }
@@ -261,14 +261,14 @@ class ConsoleStyler {
   /**
    * 清屏
    */
-  clear() {
+  clear () {
     console.clear()
   }
 
   /**
    * 暂停等待用户输入
    */
-  pause(message = '按 Enter 键继续...') {
+  pause (message = '按 Enter 键继续...') {
     console.log(`${this.theme.colors.info} ${message}`)
     return new Promise(resolve => {
       process.stdin.setRawMode(true)

@@ -1,122 +1,123 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const Database = require('./database');
+const fs = require('fs')
+const path = require('path')
+// eslint-disable-next-line no-unused-vars
+const Database = require('./database')
 
 /**
  * 日报生成器
  * 负责生成格式化的技术日报
  */
 class DailyReportGenerator {
-  constructor(config, db = null) {
-    this.config = config;
-    this.db = db;
-    this.outputDir = config.outputDir || './output';
-    this.templateDir = config.templateDir || './templates';
-    this.language = config.language || 'zh-CN';
-    this.includeStats = config.includeStats !== false;
-    this.maxArticles = config.maxArticles || 20;
-    this.minRelevanceScore = config.minRelevanceScore || 6;
-    
+  constructor (config, db = null) {
+    this.config = config
+    this.db = db
+    this.outputDir = config.outputDir || './output'
+    this.templateDir = config.templateDir || './templates'
+    this.language = config.language || 'zh-CN'
+    this.includeStats = config.includeStats !== false
+    this.maxArticles = config.maxArticles || 20
+    this.minRelevanceScore = config.minRelevanceScore || 6
+
     // 确保输出��录存在
     if (!fs.existsSync(this.outputDir)) {
-      fs.mkdirSync(this.outputDir, { recursive: true });
+      fs.mkdirSync(this.outputDir, { recursive: true })
     }
   }
 
   /**
    * 生成日报
    */
-  async generateReport(articles, options = {}) {
-    console.log('📰 开始生成日报...');
-    
+  async generateReport (articles, options = {}) {
+    console.log('📰 开始生成日报...')
+
     // 过滤和排序文章
-    const filteredArticles = this.filterArticles(articles);
-    const sortedArticles = this.sortArticles(filteredArticles);
-    const topArticles = sortedArticles.slice(0, options.maxArticles || this.maxArticles);
-    
+    const filteredArticles = this.filterArticles(articles)
+    const sortedArticles = this.sortArticles(filteredArticles)
+    const topArticles = sortedArticles.slice(0, options.maxArticles || this.maxArticles)
+
     // 生成不同格式的报告
-    const reportDate = new Date().toLocaleDateString('zh-CN');
+    const reportDate = new Date().toLocaleDateString('zh-CN')
     const reportData = {
       date: reportDate,
       generatedAt: new Date().toISOString(),
       articles: topArticles,
       stats: this.calculateStats(articles),
       summary: this.generateSummary(topArticles)
-    };
+    }
 
     // 生成Markdown报告
-    const markdownReport = await this.generateMarkdownReport(reportData);
-    const markdownFilename = `daily-report-${new Date().toISOString().split('T')[0]}.md`;
-    await this.saveReport(markdownReport, markdownFilename);
+    const markdownReport = await this.generateMarkdownReport(reportData)
+    const markdownFilename = `daily-report-${new Date().toISOString().split('T')[0]}.md`
+    await this.saveReport(markdownReport, markdownFilename)
 
     // 生成HTML报告
-    const htmlReport = await this.generateHTMLReport(reportData);
-    const htmlFilename = `daily-report-${new Date().toISOString().split('T')[0]}.html`;
-    await this.saveReport(htmlReport, htmlFilename);
+    const htmlReport = await this.generateHTMLReport(reportData)
+    const htmlFilename = `daily-report-${new Date().toISOString().split('T')[0]}.html`
+    await this.saveReport(htmlReport, htmlFilename)
 
     // 生成JSON数据
-    const jsonFilename = `report-data-${new Date().toISOString().split('T')[0]}.json`;
-    await this.saveReport(reportData, jsonFilename);
+    const jsonFilename = `report-data-${new Date().toISOString().split('T')[0]}.json`
+    await this.saveReport(reportData, jsonFilename)
 
-    console.log(`✅ 日报生成完成，共收录 ${topArticles.length} 篇文章`);
+    console.log(`✅ 日报生成完成，共收录 ${topArticles.length} 篇文章`)
     return {
       markdown: path.join(this.outputDir, markdownFilename),
       html: path.join(this.outputDir, htmlFilename),
       json: path.join(this.outputDir, jsonFilename),
       data: reportData
-    };
+    }
   }
 
   /**
    * 过滤文章
    */
-  filterArticles(articles) {
+  filterArticles (articles) {
     return articles.filter(article => {
-      if (!article.summary || article.summary === '处理失败') return false;
-      if (article.relevanceScore < this.minRelevanceScore) return false;
-      if (!article.title || !article.link) return false;
-      return true;
-    });
+      if (!article.summary || article.summary === '处理失败') return false
+      if (article.relevanceScore < this.minRelevanceScore) return false
+      if (!article.title || !article.link) return false
+      return true
+    })
   }
 
   /**
    * 排序文章
    */
-  sortArticles(articles) {
+  sortArticles (articles) {
     return articles.sort((a, b) => {
       // 首先按相关度排序
       if (b.relevanceScore !== a.relevanceScore) {
-        return b.relevanceScore - a.relevanceScore;
+        return b.relevanceScore - a.relevanceScore
       }
       // 然后按发布时间排序
-      return new Date(b.pubDate) - new Date(a.pubDate);
-    });
+      return new Date(b.pubDate) - new Date(a.pubDate)
+    })
   }
 
   /**
    * 计算统计信息
    */
-  calculateStats(articles) {
-    const sources = {};
-    const categories = {};
-    const keywordCount = {};
+  calculateStats (articles) {
+    const sources = {}
+    const categories = {}
+    const keywordCount = {}
 
     articles.forEach(article => {
       // 统计来源
-      sources[article.source] = (sources[article.source] || 0) + 1;
-      
+      sources[article.source] = (sources[article.source] || 0) + 1
+
       // 统计分类
-      categories[article.category] = (categories[article.category] || 0) + 1;
-      
+      categories[article.category] = (categories[article.category] || 0) + 1
+
       // 统计关键词
       if (article.keywords) {
         article.keywords.forEach(keyword => {
-          keywordCount[keyword] = (keywordCount[keyword] || 0) + 1;
-        });
+          keywordCount[keyword] = (keywordCount[keyword] || 0) + 1
+        })
       }
-    });
+    })
 
     return {
       total: articles.length,
@@ -125,47 +126,47 @@ class DailyReportGenerator {
       topKeywords: Object.entries(keywordCount)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10)
-    };
+    }
   }
 
   /**
    * 生成摘要
    */
-  generateSummary(articles) {
-    if (articles.length === 0) return '今日暂无优质技术文章推荐。';
+  generateSummary (articles) {
+    if (articles.length === 0) return '今日暂无优质技术文章推荐。'
 
-    const topKeywords = this.getTopKeywords(articles, 5);
-    const categories = [...new Set(articles.map(a => a.category))];
-    
-    return `今日精选 ${articles.length} 篇优质技术文章，涵盖${categories.join('、')}等领域。热门关键词：${topKeywords.join('、')}。`;
+    const topKeywords = this.getTopKeywords(articles, 5)
+    const categories = [...new Set(articles.map(a => a.category))]
+
+    return `今日精选 ${articles.length} 篇优质技术文章，涵盖${categories.join('、')}等领域。热门关键词：${topKeywords.join('、')}。`
   }
 
   /**
    * 获取Top关键词
    */
-  getTopKeywords(articles, limit = 10) {
-    const keywordCount = {};
-    
+  getTopKeywords (articles, limit = 10) {
+    const keywordCount = {}
+
     articles.forEach(article => {
       if (article.keywords) {
         article.keywords.forEach(keyword => {
-          keywordCount[keyword] = (keywordCount[keyword] || 0) + 1;
-        });
+          keywordCount[keyword] = (keywordCount[keyword] || 0) + 1
+        })
       }
-    });
+    })
 
     return Object.entries(keywordCount)
       .sort((a, b) => b[1] - a[1])
       .slice(0, limit)
-      .map(([keyword]) => keyword);
+      .map(([keyword]) => keyword)
   }
 
   /**
    * 生成Markdown报告
    */
-  async generateMarkdownReport(reportData) {
-    const { date, articles, stats, summary } = reportData;
-    
+  async generateMarkdownReport (reportData) {
+    const { date, articles, stats, summary } = reportData
+
     let markdown = `# 技术日报 - ${date}
 
 > 生成时间：${new Date().toLocaleString('zh-CN')}
@@ -183,7 +184,7 @@ ${summary}
 
 ## 📰 精选文章
 
-`;
+`
 
     articles.forEach((article, index) => {
       markdown += `### ${index + 1}. ${article.title}
@@ -200,8 +201,8 @@ ${summary}
 
 ---
 
-`;
-    });
+`
+    })
 
     // 添加详细统计
     if (this.includeStats) {
@@ -214,11 +215,11 @@ ${stats.sources.map(([source, count]) => `- **${source}**：${count} 篇`).join(
 ${stats.categories.map(([category, count]) => `- **${category}**：${count} 篇`).join('\n')}
 
 ### 热门关键词 Top 10
-${stats.topKeywords.map(([keyword, count]) => `${index + 1}. ${keyword} (${count} 次)`).join('\n')}
+${stats.topKeywords.map(([keyword, count], index) => `${index + 1}. ${keyword} (${count} 次)`).join('\n')}
 
 ---
 
-`;
+`
     }
 
     markdown += `## 📝 说明
@@ -232,17 +233,17 @@ ${stats.topKeywords.map(([keyword, count]) => `${index + 1}. ${keyword} (${count
 
 ---
 
-*Generated by Daily Report Generator*`;
+*Generated by Daily Report Generator*`
 
-    return markdown;
+    return markdown
   }
 
   /**
    * 生成HTML报告
    */
-  async generateHTMLReport(reportData) {
-    const { date, articles, stats, summary } = reportData;
-    
+  async generateHTMLReport (reportData) {
+    const { date, articles, stats, summary } = reportData
+
     const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -311,58 +312,58 @@ ${stats.topKeywords.map(([keyword, count]) => `${index + 1}. ${keyword} (${count
         </div>
     </div>
 </body>
-</html>`;
+</html>`
 
-    return html;
+    return html
   }
 
   /**
    * 保存报告
    */
-  async saveReport(content, filename) {
-    const filepath = path.join(this.outputDir, filename);
-    fs.writeFileSync(filepath, content);
-    console.log(`💾 报告已保存: ${filepath}`);
-    return filepath;
+  async saveReport (content, filename) {
+    const filepath = path.join(this.outputDir, filename)
+    fs.writeFileSync(filepath, content)
+    console.log(`💾 报告已保存: ${filepath}`)
+    return filepath
   }
 
   /**
    * 生成邮件摘要
    */
-  generateEmailSummary(reportData) {
-    const { date, articles, summary } = reportData;
-    
+  generateEmailSummary (reportData) {
+    const { date, articles, summary } = reportData
+
     let email = `📰 技术日报 - ${date}
 
 ${summary}
 
 📋 今日精选文章：
-`;
+`
 
     articles.slice(0, 5).forEach((article, index) => {
       email += `
 ${index + 1}. ${article.title}
 📝 ${article.summary}
 🔗 ${article.link}
-`;
-    });
+`
+    })
 
     email += `
 📊 详���报告请查看附件
 💻 网页版：${this.generateWebReportLink(reportData)}
 
-Generated by Daily Report Generator`;
+Generated by Daily Report Generator`
 
-    return email;
+    return email
   }
 
   /**
    * 生成网页版链接
    */
-  generateWebReportLink(reportData) {
+  generateWebReportLink (reportData) {
     // 这里可以集成到实际的网页系统
-    return `https://your-domain.com/reports/${new Date().toISOString().split('T')[0]}`;
+    return `https://your-domain.com/reports/${new Date().toISOString().split('T')[0]}`
   }
 }
 
-module.exports = DailyReportGenerator;
+module.exports = DailyReportGenerator

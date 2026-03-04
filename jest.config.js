@@ -29,4 +29,4 @@ module.exports = {
   },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   testTimeout: 30000
-};
+}

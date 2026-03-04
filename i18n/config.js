@@ -6,7 +6,7 @@ const path = require('path')
 const fs = require('fs')
 
 class I18nConfig {
-  constructor() {
+  constructor () {
     this.defaultLocale = 'zh-CN'
     this.supportedLocales = ['zh-CN', 'en-US', 'ja-JP', 'ko-KR']
     this.localesDir = path.join(__dirname, '../locales')
@@ -14,7 +14,7 @@ class I18nConfig {
     this.loadMessages()
   }
 
-  loadMessages() {
+  loadMessages () {
     this.supportedLocales.forEach(locale => {
       const filePath = path.join(this.localesDir, `${locale}.json`)
       try {
@@ -28,13 +28,13 @@ class I18nConfig {
     })
   }
 
-  getMessage(key, locale = this.defaultLocale) {
+  getMessage (key, locale = this.defaultLocale) {
     const localeMessages = this.messages[locale] || this.messages[this.defaultLocale] || {}
-    
+
     // Handle nested keys (e.g., "project.creating")
     const keys = key.split('.')
     let result = localeMessages
-    
+
     for (const k of keys) {
       if (result && typeof result === 'object' && k in result) {
         result = result[k]
@@ -42,11 +42,11 @@ class I18nConfig {
         return key // Return key if not found
       }
     }
-    
+
     return typeof result === 'string' ? result : key
   }
 
-  getLocale() {
+  getLocale () {
     // 默认使用系统语言或中文
     const systemLocale = process.env.LANG || process.env.LC_ALL || process.env.LC_MESSAGES
     if (systemLocale && systemLocale.startsWith('en')) {

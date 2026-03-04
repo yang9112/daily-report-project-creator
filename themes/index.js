@@ -8,14 +8,14 @@ const dark = require('./dark')
 const colorful = require('./colorful')
 
 class ThemeManager {
-  constructor() {
+  constructor () {
     this.currentTheme = 'default'
     this.themes = {
       default: {
         name: '默认主题',
         colors: {
           success: '🟢',
-          warning: '🟡', 
+          warning: '🟡',
           error: '🔴',
           info: '🔵',
           debug: '⚪',
@@ -47,7 +47,7 @@ class ThemeManager {
           code: (text) => `\`${text}\``,
           blockquote: (text) => `│ ${text}`,
           separator: () => '\n' + '─'.repeat(50) + '\n',
-          progress: (current, total) => `[${'█'.repeat(Math.round(current/total*10))}${'░'.repeat(10-Math.round(current/total*10))}] ${Math.round(current/total*100)}%`
+          progress: (current, total) => `[${'█'.repeat(Math.round(current / total * 10))}${'░'.repeat(10 - Math.round(current / total * 10))}] ${Math.round(current / total * 100)}%`
         }
       },
       minimal: {
@@ -86,7 +86,7 @@ class ThemeManager {
           code: (text) => `"${text}"`,
           blockquote: (text) => `> ${text}`,
           separator: () => '\n' + '-'.repeat(30) + '\n',
-          progress: (current, total) => `${current}/${total} (${Math.round(current/total*100)}%)`
+          progress: (current, total) => `${current}/${total} (${Math.round(current / total * 100)}%)`
         }
       },
       vibrant: {
@@ -125,7 +125,7 @@ class ThemeManager {
           code: (text) => `💻 ${text} 💻`,
           blockquote: (text) => `💬 ${text}`,
           separator: () => '\n' + '🌟'.repeat(20) + '\n',
-          progress: (current, total) => `📊 ${'🟢'.repeat(Math.round(current/total*10))}${'⚪'.repeat(10-Math.round(current/total*10))} ${Math.round(current/total*100)}% 📊`
+          progress: (current, total) => `📊 ${'🟢'.repeat(Math.round(current / total * 10))}${'⚪'.repeat(10 - Math.round(current / total * 10))} ${Math.round(current / total * 100)}% 📊`
         }
       },
       professional,
@@ -137,7 +137,7 @@ class ThemeManager {
   /**
    * 设置主题
    */
-  setTheme(themeName) {
+  setTheme (themeName) {
     if (this.themes[themeName]) {
       this.currentTheme = themeName
       return true
@@ -148,14 +148,14 @@ class ThemeManager {
   /**
    * 获取当前主题
    */
-  getCurrentTheme() {
+  getCurrentTheme () {
     return this.themes[this.currentTheme]
   }
 
   /**
    * 获取主题列表
    */
-  getThemeList() {
+  getThemeList () {
     return Object.keys(this.themes).map(key => ({
       name: key,
       displayName: this.themes[key].name
@@ -165,7 +165,7 @@ class ThemeManager {
   /**
    * 格式化消息
    */
-  formatMessage(type, message, options = {}) {
+  formatMessage (type, message, options = {}) {
     const theme = this.getCurrentTheme()
     const icon = theme.colors[type] || theme.colors.info
     return `${icon} ${message}`
@@ -174,7 +174,7 @@ class ThemeManager {
   /**
    * 应用样式
    */
-  applyStyle(styleName, text, ...args) {
+  applyStyle (styleName, text, ...args) {
     const theme = this.getCurrentTheme()
     const style = theme.styles[styleName]
     return style ? style(text, ...args) : text
@@ -183,7 +183,7 @@ class ThemeManager {
   /**
    * 创建进度条
    */
-  createProgress(current, total, label = '') {
+  createProgress (current, total, label = '') {
     const theme = this.getCurrentTheme()
     const progressBar = theme.styles.progress(current, total)
     return label ? `${label}: ${progressBar}` : progressBar
@@ -192,7 +192,7 @@ class ThemeManager {
   /**
    * 创建状态消息
    */
-  createStatusMessage(type, message, details = '') {
+  createStatusMessage (type, message, details = '') {
     const theme = this.getCurrentTheme()
     const icon = theme.colors[type] || theme.colors.info
     let output = `${icon} ${message}`
@@ -205,54 +205,54 @@ class ThemeManager {
   /**
    * 创建表格输出
    */
-  createTable(headers, rows, options = {}) {
+  createTable (headers, rows, options = {}) {
     const theme = this.getCurrentTheme()
     const { showIndex = false, maxWidth = 80 } = options
-    
+
     let output = theme.styles.title('数据表格')
-    
+
     // 计算列宽
-    const colWidths = headers.map(header => 
+    const colWidths = headers.map(header =>
       Math.min(Math.max(header.length, ...rows.map(row => String(row[header]).length)), maxWidth / headers.length)
     )
-    
+
     // 表头
-    const headerRow = headers.map((header, i) => 
+    const headerRow = headers.map((header, i) =>
       header.padEnd(colWidths[i])
     ).join(' | ')
     output += theme.styles.section(headerRow)
-    
+
     // 数据行
     rows.forEach((row, index) => {
-      const dataCells = headers.map((header, i) => 
+      const dataCells = headers.map((header, i) =>
         String(row[header]).padEnd(colWidths[i])
       ).join(' | ')
-      
+
       const prefix = showIndex ? `${index + 1}. ` : ''
       output += theme.styles.bullet(`${prefix}${dataCells}`)
     })
-    
+
     return output
   }
 
   /**
    * 创建列表输出
    */
-  createList(items, options = {}) {
+  createList (items, options = {}) {
     const theme = this.getCurrentTheme()
     const { numbered = false, indent = 0 } = options
-    
+
     let output = theme.styles.title('项目列表')
-    
+
     items.forEach((item, index) => {
       const text = typeof item === 'string' ? item : item.text
-      const formatted = numbered 
+      const formatted = numbered
         ? theme.styles.number(index + 1, text)
         : theme.styles.bullet(text)
-      
+
       output += theme.styles.indent(formatted, indent)
     })
-    
+
     return output
   }
 }
