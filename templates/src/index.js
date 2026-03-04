@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const DatabaseManager = require('./database');
+const Database = require('./database');
 const RSSCollector = require('./collector');
 const AIProcessor = require('./processor');
 const DailyReportGenerator = require('./generator');

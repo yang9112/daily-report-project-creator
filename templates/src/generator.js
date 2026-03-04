@@ -2,13 +2,16 @@
 
 const fs = require('fs');
 const path = require('path');
+const Database = require('./database');
 
 /**
  * 日报生成器
  * 负责生成格式化的技术日报
  */
 class DailyReportGenerator {
-  constructor(config = {}) {
+  constructor(config, db = null) {
+    this.config = config;
+    this.db = db;
     this.outputDir = config.outputDir || './output';
     this.templateDir = config.templateDir || './templates';
     this.language = config.language || 'zh-CN';

@@ -5,12 +5,14 @@ const path = require('path');
 const Parser = require('rss-parser');
 const axios = require('axios');
 
+const Database = require('./database');
+
 /**
  * RSS订阅源采集器
  * 负责从各种RSS源采集技术文章
  */
 class RSSCollector {
-  constructor(config = {}) {
+  constructor(config, sources = null, db = null) {
     this.parser = new Parser({
       timeout: 10000,
       customFields: {
@@ -19,7 +21,17 @@ class RSSCollector {
       }
     });
     
-    this.sources = config.sources || [];
+    this.config = config;
+    this.db = db;
+    this.sources = sources || null;
+    this.parser = new Parser({
+      timeout: 10000,
+      customFields: {
+        feed: ['image', 'language'],
+        item: ['summary', 'content', 'encoded', 'categories']
+      }
+    });
+    
     this.outputDir = config.outputDir || './data';
     this.maxArticles = config.maxArticles || 100;
     this.timeout = config.timeout || 30000;
