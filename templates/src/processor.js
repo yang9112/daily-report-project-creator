@@ -3,20 +3,38 @@
 const fs = require('fs')
 const path = require('path')
 const axios = require('axios')
+// eslint-disable-next-line no-unused-vars
+const Database = require('./database')
 
 /**
  * AI摘要处理器
  * 负责使用AI对文章进行摘要和关键词提取
  */
 class AIProcessor {
-  constructor (config = {}) {
-    this.apiProvider = config.apiProvider || 'openai'
-    this.apiKey = config.apiKey || process.env.AI_API_KEY
-    this.model = config.model || 'gpt-3.5-turbo'
-    this.maxTokens = config.maxTokens || 1000
-    this.temperature = config.temperature || 0.7
+  constructor (config, db = null) {
+    this.config = config
+    this.db = db
+
+    // 初始化AI客户端
+    this.aiClient = null
+    this.initAIClient()
+
     this.outputDir = config.outputDir || './data'
     this.batchSize = config.batchSize || 5
+  }
+
+  initAIClient () {
+    const { provider, apiKey, baseUrl } = this.config.llm
+
+    if (provider === 'openai' || provider === 'openai-compatible') {
+      const OpenAI = require('openai')
+      this.aiClient = new OpenAI({
+        apiKey,
+        baseURL: baseUrl || 'https://api.openai.com/v1'
+      })
+    } else {
+      throw new Error(`不支持的AI提供商: ${provider}`)
+    }
 
     // API配置
     this.apiConfig = {

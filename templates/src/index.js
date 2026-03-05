@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-const DatabaseManager = require('./database')
+// eslint-disable-next-line no-unused-vars
+const Database = require('./database')
 const RSSCollector = require('./collector')
 const AIProcessor = require('./processor')
 const DailyReportGenerator = require('./generator')
@@ -31,31 +32,14 @@ class TechDailyDigest {
       await this.loadConfig()
 
       // 初始化数据库
-      this.db = new DatabaseManager({
-        dbPath: this.config.database?.path || './data/daily-report.db',
-        dataDir: './data'
-      })
+      this.db = new Database(this.config)
 
       // 初始化各组件
-      this.collector = new RSSCollector({
-        sources: this.config.sources || [],
-        outputDir: './data',
-        maxArticles: this.config.collector?.maxArticles || 100
-      })
+      this.collector = new RSSCollector(this.config, this.db)
 
-      this.processor = new AIProcessor({
-        apiProvider: this.config.ai?.provider || 'openai',
-        apiKey: this.config.ai?.apiKey || process.env.AI_API_KEY,
-        model: this.config.ai?.model || 'gpt-3.5-turbo',
-        outputDir: './data',
-        batchSize: this.config.ai?.batchSize || 5
-      })
+      this.processor = new AIProcessor(this.config, this.db)
 
-      this.generator = new DailyReportGenerator({
-        outputDir: './output',
-        maxArticles: this.config.generator?.maxArticles || 20,
-        minRelevanceScore: this.config.generator?.minRelevanceScore || 6
-      })
+      this.generator = new DailyReportGenerator(this.config, this.db)
 
       console.log('✅ 系统初始化完成')
     } catch (error) {
@@ -326,6 +310,7 @@ class TechDailyDigest {
    */
   async status () {
     await this.init()
+    await this.db.connect()
 
     try {
       const stats = await this.db.getStatistics(30)
