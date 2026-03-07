@@ -24,16 +24,22 @@ class AIProcessor {
   }
 
   initAIClient () {
-    const { provider, apiKey, baseUrl } = this.config.llm
+    // 兼容两种配置格式
+    const llmConfig = this.config.llm || this.config.ai || {}
+    const { provider, apiKey, baseUrl, api_key } = llmConfig
 
-    if (provider === 'openai' || provider === 'openai-compatible') {
+    const actualProvider = provider || 'openai'
+    const actualApiKey = apiKey || api_key || process.env.OPENAI_API_KEY
+    const actualBaseUrl = baseUrl || process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1'
+
+    if (actualProvider === 'openai' || actualProvider === 'openai-compatible') {
       const OpenAI = require('openai')
       this.aiClient = new OpenAI({
-        apiKey,
-        baseURL: baseUrl || 'https://api.openai.com/v1'
+        apiKey: actualApiKey,
+        baseURL: actualBaseUrl
       })
     } else {
-      throw new Error(`不支持的AI提供商: ${provider}`)
+      throw new Error(`不支持的AI提供商: ${actualProvider}`)
     }
 
     // API配置

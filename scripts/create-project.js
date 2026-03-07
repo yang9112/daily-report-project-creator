@@ -185,14 +185,26 @@ class DailyReportProjectCreator {
       help: 'node src/index.js --help'
     }
 
-    // 确保dependencies字段存在
+    // 确���dependencies字段存在
     if (!packageJson.dependencies) {
       packageJson.dependencies = {
         axios: '^1.6.0',
         commander: '^11.0.0',
         'fs-extra': '^11.3.3',
-        yargs: '^18.0.0'
+        yargs: '^18.0.0',
+        sqlite3: '^5.1.6',
+        'rss-parser': '^3.13.0',
+        nodemailer: '^6.9.0',
+        dotenv: '^16.4.0',
+        chalk: '^4.1.2'
       }
+    } else {
+      // 确保必需的依赖存在
+      const requiredDeps = {
+        sqlite3: '^5.1.6',
+        'rss-parser': '^3.13.0'
+      }
+      Object.assign(packageJson.dependencies, requiredDeps)
     }
 
     // 确保devDependencies字段存在
