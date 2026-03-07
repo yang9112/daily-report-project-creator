@@ -15,12 +15,13 @@ class AIProcessor {
     this.config = config
     this.db = db
 
+    // 初始化属性
+    this.outputDir = (config.digest && config.digest.output_dir) || './data'
+    this.batchSize = config.batchSize || 5
+
     // 初始化AI客户端
     this.aiClient = null
     this.initAIClient()
-
-    this.outputDir = (config.digest && config.digest.output_dir) || './data'
-    this.batchSize = config.batchSize || 5
   }
 
   initAIClient () {
