@@ -86,11 +86,11 @@ class Database {
         this.db.run(createSourcesTable)
         this.db.run(createArticlesTable)
         this.db.run(createReportsTable)
-        
+
         createIndexes.forEach(indexSql => {
           this.db.run(indexSql)
         })
-        
+
         console.log('✅ 数据库表初始化完成')
         resolve()
       })
@@ -286,16 +286,16 @@ class Database {
   getDatabaseSize () {
     try {
       const stats = require('fs').statSync(this.dbPath)
-      return { 
+      return {
         path: this.dbPath,
-        sizeBytes: stats.size, 
-        sizeMB: (stats.size / 1024 / 1024).toFixed(2) 
+        sizeBytes: stats.size,
+        sizeMB: (stats.size / 1024 / 1024).toFixed(2)
       }
     } catch (error) {
-      return { 
+      return {
         path: this.dbPath,
-        sizeBytes: 0, 
-        sizeMB: '0.00' 
+        sizeBytes: 0,
+        sizeMB: '0.00'
       }
     }
   }

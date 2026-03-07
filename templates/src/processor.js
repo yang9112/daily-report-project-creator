@@ -26,10 +26,10 @@ class AIProcessor {
   initAIClient () {
     // 兼容两种配置格式
     const llmConfig = this.config.llm || this.config.ai || {}
-    const { provider, apiKey, baseUrl, api_key } = llmConfig
+    const { provider, apiKey, baseUrl } = llmConfig
 
     const actualProvider = provider || 'openai'
-    const actualApiKey = apiKey || api_key || process.env.OPENAI_API_KEY
+    const actualApiKey = apiKey || process.env.OPENAI_API_KEY
     const actualBaseUrl = baseUrl || process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1'
 
     if (actualProvider === 'openai' || actualProvider === 'openai-compatible') {
