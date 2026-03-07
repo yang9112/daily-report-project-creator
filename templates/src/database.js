@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const BetterSqlite3 = require('better-sqlite3')
 // eslint-disable-next-line no-unused-vars
 const path = require('path')
