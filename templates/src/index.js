@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+require('dotenv').config()
+
 // eslint-disable-next-line no-unused-vars
 const Database = require('./database')
 const RSSCollector = require('./collector')

@@ -19,7 +19,7 @@ class AIProcessor {
     this.aiClient = null
     this.initAIClient()
 
-    this.outputDir = config.outputDir || './data'
+    this.outputDir = (config.digest && config.digest.output_dir) || './data'
     this.batchSize = config.batchSize || 5
   }
 
@@ -43,6 +43,7 @@ class AIProcessor {
     }
 
     // API配置
+    this.apiKey = actualApiKey
     this.apiConfig = {
       openai: {
         baseUrl: 'https://api.openai.com/v1',

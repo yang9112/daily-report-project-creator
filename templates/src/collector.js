@@ -50,13 +50,13 @@ class RSSCollector {
    */
   async collectAll () {
     console.log('🔄 开始采集RSS源...')
-    
+
     // 如果没有设置sources，从配置中获取
     let sources = this.sources
     if (!sources && this.config && this.config.sources) {
       sources = this.config.sources
     }
-    
+
     if (!sources || sources.length === 0) {
       console.log('⚠️  没有找到RSS源配置')
       return []
@@ -210,20 +210,6 @@ class RSSCollector {
         earliest: new Date(Math.min(...articles.map(a => new Date(a.pubDate)))),
         latest: new Date(Math.max(...articles.map(a => new Date(a.pubDate))))
       }
-    }
-  }
-
-  /**
-   * 采集所有源的文章
-   * 适配器方法，兼容不同的调用接口
-   */
-  async collectAll() {
-    try {
-      const result = await this.collectFeeds()
-      return result.total || 0
-    } catch (error) {
-      console.error('采集所有文章失败:', error.message)
-      return 0
     }
   }
 }
