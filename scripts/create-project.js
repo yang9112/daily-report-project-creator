@@ -261,16 +261,22 @@ class DailyReportProjectCreator {
         output_dir: './output',
         output_format: 'markdown'
       },
-      sources: {
-        auto_discover: true,
-        default_feeds: [
-          {
-            name: '示例技术博客',
-            feed_url: 'https://example.com/rss.xml',
-            is_active: true
-          }
-        ]
-      }
+      sources: [
+        {
+          name: '美团技术团队',
+          feed_url: 'https://tech.meituan.com/feed',
+          type: 'rss',
+          category: '企业技术',
+          maxArticles: 20
+        },
+        {
+          name: '字节跳动技术团队',
+          feed_url: 'https://techblog.toutiao.com/rss.xml',
+          type: 'rss',
+          category: '企业技术',
+          maxArticles: 20
+        }
+      ]
     }
 
     // 确保config目录存在

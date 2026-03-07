@@ -454,6 +454,87 @@ class Database {
       this.db.close()
     }
   }
+
+  // 获取源统计信息
+  async getSourceStats() {
+    const sql = `
+      SELECT 
+        s.name,
+        s.feed_url,
+        COUNT(a.id) as article_count,
+        COUNT(CASE WHEN a.status = 'processed' THEN 1 END) as processed_count,
+        MAX(a.published_at) as last_article_date,
+        s.last_checked
+      FROM sources s
+      LEFT JOIN articles a ON s.id = a.source_id
+      WHERE s.is_active = 1
+      GROUP BY s.id, s.name, s.feed_url, s.last_checked
+      ORDER BY s.name
+    `
+
+    return this._query(sql)
+  }
+
+  // 获取所有源（包括非活跃的）
+  async getAllSources() {
+    const sql = `
+      SELECT 
+        id, name, feed_url, last_checked, is_active, created_at
+      FROM sources
+      ORDER BY name
+    `
+
+    return this._query(sql)
+  }
+
+  // 获取数据库大小信息
+  async getDatabaseSize() {
+    try {
+      // 获取数据库文件大小
+      const fs = require('fs')
+      const stats = fs.statSync(this.dbPath)
+      const sizeBytes = stats.size
+      const sizeMB = (sizeBytes / (1024 * 1024)).toFixed(2)
+
+      // 获取表记录数
+      const articleCount = await this._querySingle('SELECT COUNT(*) as count FROM articles')
+      const sourceCount = await this._querySingle('SELECT COUNT(*) as count FROM sources')
+
+      return {
+        sizeBytes,
+        sizeMB: parseFloat(sizeMB),
+        articleCount: articleCount.count,
+        sourceCount: sourceCount.count,
+        lastUpdated: new Date().toISOString()
+      }
+    } catch (error) {
+      console.error('获取数据库大小失败:', error.message)
+      return {
+        sizeBytes: 0,
+        sizeMB: 0,
+        articleCount: 0,
+        sourceCount: 0,
+        lastUpdated: new Date().toISOString()
+      }
+    }
+  }
+
+  // 获取精选文章
+  async getFeaturedArticles(limit = 20) {
+    const sql = `
+      SELECT 
+        a.id, a.title, a.summary, a.keywords, a.link, a.published_at,
+        s.name as source_name
+      FROM articles a
+      JOIN sources s ON a.source_id = s.id
+      WHERE a.status = 'processed' 
+      AND a.featured = 1
+      ORDER BY a.published_at DESC
+      LIMIT ?
+    `
+
+    return this._query(sql, [limit])
+  }
 }
 
 module.exports = Database

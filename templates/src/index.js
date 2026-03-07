@@ -315,7 +315,7 @@ class TechDailyDigest {
     try {
       const stats = await this.db.getStatistics(30)
       const sourceStats = await this.db.getSourceStats()
-      const dbSize = this.db.getDatabaseSize()
+      const dbSize = await this.db.getDatabaseSize()
 
       console.log('\n📊 系统状态报告')
       console.log('='.repeat(50))
