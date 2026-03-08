@@ -18,6 +18,14 @@ class Database {
   }
 
   async connect () {
+    // Always close existing connection before creating a new one
+    if (this.db) {
+      await new Promise((resolve) => {
+        this.db.close(() => resolve())
+      })
+      this.db = null
+    }
+    
     return new Promise((resolve, reject) => {
       this.db = new sqlite3.Database(this.dbPath, (err) => {
         if (err) {
@@ -452,6 +460,7 @@ class Database {
   close () {
     if (this.db) {
       this.db.close()
+      this.db = null
     }
   }
 }

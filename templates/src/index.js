@@ -35,6 +35,7 @@ class TechDailyDigest {
 
       // 初始化数据库
       this.db = new Database(this.config)
+      await this.db.connect()
 
       // 初始化各组件
       this.collector = new RSSCollector(this.config, this.config.sources, this.db)
@@ -312,7 +313,6 @@ class TechDailyDigest {
    */
   async status () {
     await this.init()
-    await this.db.connect()
 
     try {
       const stats = await this.db.getStatistics(30)
@@ -334,10 +334,6 @@ class TechDailyDigest {
       })
     } catch (error) {
       console.error('❌ 获取状态失败:', error.message)
-    } finally {
-      if (this.db) {
-        this.db.close()
-      }
     }
   }
 
