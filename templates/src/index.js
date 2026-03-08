@@ -35,7 +35,7 @@ class TechDailyDigest {
 
       // 初始化数据库
       this.db = new Database(this.config)
-      await this.db.init()
+      await this.db.connect()
 
       // 初始化各组件
       this.collector = new RSSCollector(this.config, this.config.sources, this.db)
