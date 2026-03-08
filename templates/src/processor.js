@@ -43,6 +43,9 @@ class AIProcessor {
       throw new Error(`不支持的AI提供商: ${actualProvider}`)
     }
 
+    // 设置API提供商
+    this.apiProvider = actualProvider
+
     // API配置
     this.apiKey = actualApiKey
     this.apiConfig = {

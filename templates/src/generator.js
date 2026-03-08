@@ -59,7 +59,7 @@ class DailyReportGenerator {
 
     // 生成JSON数据
     const jsonFilename = `report-data-${new Date().toISOString().split('T')[0]}.json`
-    await this.saveReport(reportData, jsonFilename)
+    await this.saveReport(JSON.stringify(reportData, null, 2), jsonFilename)
 
     console.log(`✅ 日报生成完成，共收录 ${topArticles.length} 篇文章`)
     return {
