@@ -312,7 +312,6 @@ class TechDailyDigest {
    */
   async status () {
     await this.init()
-    await this.db.connect()
 
     try {
       const stats = await this.db.getStatistics(30)
