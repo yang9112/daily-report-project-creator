@@ -334,10 +334,6 @@ class TechDailyDigest {
       })
     } catch (error) {
       console.error('❌ 获取状态失败:', error.message)
-    } finally {
-      if (this.db) {
-        this.db.close()
-      }
     }
   }
 
