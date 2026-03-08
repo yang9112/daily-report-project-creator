@@ -119,21 +119,21 @@ class DailyReportProjectCreator {
     ]
 
     coreFiles.forEach(file => {
-      // 优先从tech-daily-digest技能目录的scripts子目录复制
-      const skillPath = path.join(this.baseSkillPath, 'scripts', file)
-
-      // 如果不存在，从项目模板目录复制
+      // 优先从项目模板目录复制
       const templatePath = path.join(__dirname, '../templates/src', file)
+      
+      // 如果不存在，从tech-daily-digest技能目录的scripts子目录复制
+      const skillPath = path.join(this.baseSkillPath, 'scripts', file)
 
       const destPath = path.join(projectPath, 'src', file)
 
       let srcPath = null
-      if (fs.existsSync(skillPath)) {
-        srcPath = skillPath
-        this.console.success(`从技能目录复制: ${file}`)
-      } else if (fs.existsSync(templatePath)) {
+      if (fs.existsSync(templatePath)) {
         srcPath = templatePath
         this.console.success(`从模板目录复制: ${file}`)
+      } else if (fs.existsSync(skillPath)) {
+        srcPath = skillPath
+        this.console.success(`从技能目录复制: ${file}`)
       } else {
         this.console.warn(`跳过: ${file} (源文件不存在)`)
         return
@@ -185,14 +185,26 @@ class DailyReportProjectCreator {
       help: 'node src/index.js --help'
     }
 
-    // 确保dependencies字段存在
+    // 确���dependencies字段存在
     if (!packageJson.dependencies) {
       packageJson.dependencies = {
         axios: '^1.6.0',
         commander: '^11.0.0',
         'fs-extra': '^11.3.3',
-        yargs: '^18.0.0'
+        yargs: '^18.0.0',
+        sqlite3: '^5.1.6',
+        'rss-parser': '^3.13.0',
+        nodemailer: '^6.9.0',
+        dotenv: '^16.4.0',
+        chalk: '^4.1.2'
       }
+    } else {
+      // 确保必需的依赖存在
+      const requiredDeps = {
+        sqlite3: '^5.1.6',
+        'rss-parser': '^3.13.0'
+      }
+      Object.assign(packageJson.dependencies, requiredDeps)
     }
 
     // 确保devDependencies字段存在
@@ -249,16 +261,22 @@ class DailyReportProjectCreator {
         output_dir: './output',
         output_format: 'markdown'
       },
-      sources: {
-        auto_discover: true,
-        default_feeds: [
-          {
-            name: '示例技术博客',
-            feed_url: 'https://example.com/rss.xml',
-            is_active: true
-          }
-        ]
-      }
+      sources: [
+        {
+          name: '美团技术团队',
+          feed_url: 'https://tech.meituan.com/feed',
+          type: 'rss',
+          category: '企业技术',
+          maxArticles: 20
+        },
+        {
+          name: '字节跳动技术团队',
+          feed_url: 'https://techblog.toutiao.com/rss.xml',
+          type: 'rss',
+          category: '企业技术',
+          maxArticles: 20
+        }
+      ]
     }
 
     // 确保config目录存在
@@ -774,7 +792,13 @@ jobs:
       // 添加远程仓库并推送
       execSync(`git remote add origin https://github.com/yang9112/${repoName}.git`,
         { cwd: projectPath })
-      execSync('git push -u origin main', { cwd: projectPath })
+      // 尝试推送到main分支，如果失败则推送到master分支
+      try {
+        execSync('git push -u origin main', { cwd: projectPath })
+      } catch (pushError) {
+        this.console.warn('推送到main分支失败，尝试推送到master分支...')
+        execSync('git push -u origin master', { cwd: projectPath })
+      }
 
       this.console.success(`GitHub仓库创建成功: https://github.com/yang9112/${repoName}`)
     } catch (error) {

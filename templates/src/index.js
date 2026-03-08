@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+require('dotenv').config()
+
 // eslint-disable-next-line no-unused-vars
 const Database = require('./database')
 const RSSCollector = require('./collector')
@@ -35,7 +37,7 @@ class TechDailyDigest {
       this.db = new Database(this.config)
 
       // 初始化各组件
-      this.collector = new RSSCollector(this.config, this.db)
+      this.collector = new RSSCollector(this.config, this.config.sources, this.db)
 
       this.processor = new AIProcessor(this.config, this.db)
 
@@ -315,7 +317,7 @@ class TechDailyDigest {
     try {
       const stats = await this.db.getStatistics(30)
       const sourceStats = await this.db.getSourceStats()
-      const dbSize = this.db.getDatabaseSize()
+      const dbSize = await this.db.getDatabaseSize()
 
       console.log('\n📊 系统状态报告')
       console.log('='.repeat(50))
