@@ -456,6 +456,7 @@ class Database {
   close () {
     if (this.db) {
       this.db.close()
+      this.db = null
     }
   }
 }
