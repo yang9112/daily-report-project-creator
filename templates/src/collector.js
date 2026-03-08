@@ -86,24 +86,24 @@ class RSSCollector {
   async collectFromSource (source) {
     try {
       const feed = await this.parser.parseURL(source.url || source.feed_url)
-      
+
       if (!feed || !feed.items || feed.items.length === 0) {
         console.warn(`⚠️ RSS源 ${source.name} 没有可获取的文章`)
         return []
       }
 
       const articles = feed.items.map(item => ({
-      title: this.cleanText(item.title),
-      link: item.link,
-      description: this.cleanText(item.description || item.summary || ''),
-      content: this.cleanText(item.content || item['content:encoded'] || ''),
-      pubDate: item.pubDate ? new Date(item.pubDate) : new Date(),
-      guid: item.guid || item.link,
-      source: source.name,
-      category: source.category || 'general',
-      author: item.author || item.creator || '',
-      tags: this.extractTags(item.categories || [])
-    }))
+        title: this.cleanText(item.title),
+        link: item.link,
+        description: this.cleanText(item.description || item.summary || ''),
+        content: this.cleanText(item.content || item['content:encoded'] || ''),
+        pubDate: item.pubDate ? new Date(item.pubDate) : new Date(),
+        guid: item.guid || item.link,
+        source: source.name,
+        category: source.category || 'general',
+        author: item.author || item.creator || '',
+        tags: this.extractTags(item.categories || [])
+      }))
 
       // 过滤和限制数量
       return articles

@@ -25,7 +25,7 @@ class Database {
       })
       this.db = null
     }
-    
+
     return new Promise((resolve, reject) => {
       this.db = new sqlite3.Database(this.dbPath, (err) => {
         if (err) {
