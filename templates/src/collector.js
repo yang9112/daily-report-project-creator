@@ -27,13 +27,6 @@ class RSSCollector {
     this.config = config
     this.db = db
     this.sources = sources || null
-    this.parser = new Parser({
-      timeout: 10000,
-      customFields: {
-        feed: ['image', 'language'],
-        item: ['summary', 'content', 'encoded', 'categories']
-      }
-    })
 
     this.outputDir = config.outputDir || './data'
     this.maxArticles = config.maxArticles || 100
@@ -72,6 +65,7 @@ class RSSCollector {
         console.log(`✅ 从 ${source.name} 采集到 ${articles.length} 篇文章`)
       } catch (error) {
         console.error(`❌ 采集 ${source.name} 失败:`, error.message)
+        // 继续处理其他源，不让单个源失败影响整个采集流程
       }
     }
 
@@ -90,9 +84,15 @@ class RSSCollector {
    * 从单个源采集文章
    */
   async collectFromSource (source) {
-    const feed = await this.parser.parseURL(source.url)
+    try {
+      const feed = await this.parser.parseURL(source.url || source.feed_url)
+      
+      if (!feed || !feed.items || feed.items.length === 0) {
+        console.warn(`⚠️ RSS源 ${source.name} 没有可获取的文章`)
+        return []
+      }
 
-    const articles = feed.items.map(item => ({
+      const articles = feed.items.map(item => ({
       title: this.cleanText(item.title),
       link: item.link,
       description: this.cleanText(item.description || item.summary || ''),
@@ -105,10 +105,14 @@ class RSSCollector {
       tags: this.extractTags(item.categories || [])
     }))
 
-    // 过滤和限制数量
-    return articles
-      .filter(article => this.isValidArticle(article))
-      .slice(0, source.maxArticles || this.maxArticles)
+      // 过滤和限制数量
+      return articles
+        .filter(article => this.isValidArticle(article))
+        .slice(0, source.maxArticles || this.maxArticles)
+    } catch (error) {
+      console.error(`❌ 解析RSS源 ${source.name} 失败:`, error.message)
+      return []
+    }
   }
 
   /**
@@ -138,7 +142,7 @@ class RSSCollector {
   isValidArticle (article) {
     if (!article.title || !article.link) return false
     if (article.title.length > 200) return false
-    if (new Date(article.pubDate).isNaN()) return false
+    if (isNaN(new Date(article.pubDate))) return false
     if (this.isTooOld(article.pubDate)) return false
     return true
   }

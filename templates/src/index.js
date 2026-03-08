@@ -37,7 +37,7 @@ class TechDailyDigest {
       this.db = new Database(this.config)
 
       // 初始化各组件
-      this.collector = new RSSCollector(this.config, this.db)
+      this.collector = new RSSCollector(this.config, this.config.sources, this.db)
 
       this.processor = new AIProcessor(this.config, this.db)
 

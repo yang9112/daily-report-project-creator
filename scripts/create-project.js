@@ -119,21 +119,21 @@ class DailyReportProjectCreator {
     ]
 
     coreFiles.forEach(file => {
-      // 优先从tech-daily-digest技能目录的scripts子目录复制
-      const skillPath = path.join(this.baseSkillPath, 'scripts', file)
-
-      // 如果不存在，从项目模板目录复制
+      // 优先从项目模板目录复制
       const templatePath = path.join(__dirname, '../templates/src', file)
+      
+      // 如果不存在，从tech-daily-digest技能目录的scripts子目录复制
+      const skillPath = path.join(this.baseSkillPath, 'scripts', file)
 
       const destPath = path.join(projectPath, 'src', file)
 
       let srcPath = null
-      if (fs.existsSync(skillPath)) {
-        srcPath = skillPath
-        this.console.success(`从技能目录复制: ${file}`)
-      } else if (fs.existsSync(templatePath)) {
+      if (fs.existsSync(templatePath)) {
         srcPath = templatePath
         this.console.success(`从模板目录复制: ${file}`)
+      } else if (fs.existsSync(skillPath)) {
+        srcPath = skillPath
+        this.console.success(`从技能目录复制: ${file}`)
       } else {
         this.console.warn(`跳过: ${file} (源文件不存在)`)
         return
@@ -792,7 +792,13 @@ jobs:
       // 添加远程仓库并推送
       execSync(`git remote add origin https://github.com/yang9112/${repoName}.git`,
         { cwd: projectPath })
-      execSync('git push -u origin main', { cwd: projectPath })
+      // 尝试推送到main分支，如果失败则推送到master分支
+      try {
+        execSync('git push -u origin main', { cwd: projectPath })
+      } catch (pushError) {
+        this.console.warn('推送到main分支失败，尝试推送到master分支...')
+        execSync('git push -u origin master', { cwd: projectPath })
+      }
 
       this.console.success(`GitHub仓库创建成功: https://github.com/yang9112/${repoName}`)
     } catch (error) {
