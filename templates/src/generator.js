@@ -108,8 +108,9 @@ class DailyReportGenerator {
       // 统计来源
       sources[article.source] = (sources[article.source] || 0) + 1
 
-      // 统计分类
-      categories[article.category] = (categories[article.category] || 0) + 1
+      // 统计分类 - 处理undefined值
+      const category = article.category || 'general'
+      categories[category] = (categories[category] || 0) + 1
 
       // 统计关键词
       if (article.keywords) {
