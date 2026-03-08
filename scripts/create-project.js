@@ -824,7 +824,7 @@ jobs:
       if (validationResult.success) {
         this.console.success('🎉 项目配置验证通过！')
         this.console.info('项目已准备就绪，可以开始使用。')
-        
+
         // 提供下一步指导
         this.console.info('\n📋 下一步操作:')
         this.console.info('1. 进入项目目录:')
@@ -836,19 +836,17 @@ jobs:
         this.console.info('3. 运行系统:')
         this.console.info('   npm run setup  # 安装依赖')
         this.console.info('   node src/index.js --help  # 查看帮助')
-        
       } else {
         this.console.warn('⚠️ 项目配置验证发现问题')
         this.console.info(`发现 ${validationResult.errors.length} 个错误和 ${validationResult.warnings.length} 个警告`)
-        
+
         if (validationResult.errors.length > 0) {
           this.console.info('请修复上述错误后再使用项目。')
         }
-        
+
         // 尝试自动修复一些常见问题
         await this.attemptAutoFix(projectPath, validationResult)
       }
-
     } catch (error) {
       this.console.error('配置验证过程中发生错误:', error.message)
       this.console.warn('项目已创建，但配置验证失败。请手动检查项目配置。')
@@ -880,14 +878,14 @@ jobs:
     })
 
     // 自动修复: 安装缺失的依赖
-    const hasDependencyErrors = validationResult.errors.some(error => 
+    const hasDependencyErrors = validationResult.errors.some(error =>
       error.includes('依赖') || error.includes('node_modules')
     )
 
     if (hasDependencyErrors) {
       try {
         this.console.info('  🔄 尝试安装依赖...')
-        execSync('npm install --silent', { 
+        execSync('npm install --silent', {
           cwd: projectPath,
           stdio: 'pipe',
           timeout: 120000 // 2分钟超时
@@ -901,13 +899,13 @@ jobs:
 
     if (fixedCount > 0) {
       this.console.success(`🎉 成功修复 ${fixedCount} 个问题`)
-      
+
       // 重新验证
       this.console.info('\n🔄 重新验证...')
       try {
         const validator = new ConfigValidator(this.console)
         const newResult = await validator.validateProject(projectPath)
-        
+
         if (newResult.success) {
           this.console.success('🎉 所有问题已修复！')
         } else {
@@ -946,9 +944,9 @@ if (require.main === module) {
       i18n.setLocale(options.lang)
 
       const creator = new DailyReportProjectCreator(i18n, options.theme)
-      creator.createProject(projectName, { 
+      creator.createProject(projectName, {
         createGitHub: options.github,
-        skipConfigValidation: options.skipConfigValidation 
+        skipConfigValidation: options.skipConfigValidation
       })
         .then(() => {
           creator.console.success(i18n.t('project.creation_complete'))
