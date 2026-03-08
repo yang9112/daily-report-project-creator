@@ -18,8 +18,12 @@ class Database {
   }
 
   async connect () {
+    // Always close existing connection before creating a new one
     if (this.db) {
-      return Promise.resolve()
+      await new Promise((resolve) => {
+        this.db.close(() => resolve())
+      })
+      this.db = null
     }
     
     return new Promise((resolve, reject) => {
