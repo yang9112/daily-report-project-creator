@@ -121,7 +121,7 @@ class DailyReportProjectCreator {
     coreFiles.forEach(file => {
       // 优先从项目模板目录复制
       const templatePath = path.join(__dirname, '../templates/src', file)
-      
+
       // 如果不存在，从tech-daily-digest技能目录的scripts子目录复制
       const skillPath = path.join(this.baseSkillPath, 'scripts', file)
 
