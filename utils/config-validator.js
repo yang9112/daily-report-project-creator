@@ -3,7 +3,6 @@
 /* eslint-disable no-console */
 const fs = require('fs')
 const path = require('path')
-const { execSync } = require('child_process')
 /* eslint-enable no-console */
 
 /**
@@ -110,7 +109,7 @@ class ConfigValidator {
     if (fs.existsSync(envExamplePath)) {
       const envContent = fs.readFileSync(envExamplePath, 'utf8')
       const requiredVars = ['OPENAI_API_KEY', 'DB_PATH']
-      
+
       requiredVars.forEach(varName => {
         if (envContent.includes(varName)) {
           this.console.success(`  ✅ 环境变量 ${varName} 已定义`)
@@ -213,7 +212,7 @@ class ConfigValidator {
       // 验证关键依赖
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
       const criticalDeps = ['sqlite3', 'rss-parser', 'axios', 'commander']
-      
+
       criticalDeps.forEach(dep => {
         if (packageJson.dependencies && packageJson.dependencies[dep]) {
           const depPath = path.join(nodeModulesPath, dep)
@@ -226,7 +225,6 @@ class ConfigValidator {
           this.warnings.push(`package.json中未找到关键依赖: ${dep}`)
         }
       })
-
     } catch (error) {
       this.errors.push(`依赖验证失败: ${error.message}`)
     }
@@ -239,7 +237,7 @@ class ConfigValidator {
     this.console.info('🗄️ 验证数据库设置...')
 
     const dataDir = path.join(this.projectPath, 'data')
-    
+
     // 检查data目录是否存在
     if (!fs.existsSync(dataDir)) {
       try {
@@ -258,10 +256,10 @@ class ConfigValidator {
     try {
       // 先检查sqlite3是否已安装
       require.resolve('sqlite3')
-      
+
       const Database = require('sqlite3').Database
       const testDb = new Database(dbPath)
-      
+
       // 测试基本表创建
       testDb.serialize(() => {
         testDb.run(`
@@ -271,14 +269,14 @@ class ConfigValidator {
           )
         `)
       })
-      
+
       testDb.close()
-      
+
       // 清理测试文件
       if (fs.existsSync(dbPath)) {
         fs.unlinkSync(dbPath)
       }
-      
+
       this.console.success('  ✅ 数据库连接测试通过')
     } catch (error) {
       if (error.message.includes('Cannot find module')) {
@@ -320,7 +318,7 @@ class ConfigValidator {
     if (fs.existsSync(indexJsPath)) {
       try {
         // 简单的语法检查
-        const content = fs.readFileSync(indexJsPath, 'utf8')
+        fs.readFileSync(indexJsPath, 'utf8')
         // 这里可以添加更复杂的语法验证
         this.console.success('  ✅ 主入口文件存在')
       } catch (error) {
