@@ -129,13 +129,9 @@ jobs:
           echo "✅ No API keys found"
         fi
         
-        # 检查是否有密码或凭证（排除文档、注释、示例文件、验证代码、测试文件、模板文件和安全配置，以及config-validator.js和包含配置字段的文件）
-        FINDINGS=$(grep -ri "password\|secret\|token" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.log" --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" --exclude="create-project.js" --exclude="validate.js" --exclude="utils/config-validator.js" --exclude-dir=tests --exclude="*.test.js" --exclude="*.spec.js" --exclude-dir=templates | grep -v "# password\|# secret\|OPENAI_API_KEY\|GitHub token" | grep -v "API密钥" | grep -v "密码" | grep -v "凭证" | grep -v "/sk-\[a-zA-Z0-9\]" | grep -v "/ghp_\[a-zA-Z0-9\]")
-
-        # 过滤出包含" key "（独立单词key，而不是api_key或其他复合词）的内容
-        if echo "$FINDINGS" | grep -E '\bkey\b|\bkeys\b' | grep -v 'api_key\|token\|password\|secret\|OPENAI_API_KEY\|keywords'; then
+        # 检查是否有密码或凭证（排除文档、注释、示例文件、验证代码、测试文件、模板文件和安全配置）
+        if grep -ri "password\|secret\|token" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.log" --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" --exclude="create-project.js" --exclude="validate.js" --exclude="utils/config-validator.js" --exclude-dir=tests --exclude="*.test.js" --exclude="*.spec.js" --exclude-dir=templates | grep -v "# password\|# secret\|OPENAI_API_KEY\|GitHub token" | grep -v "API密钥" | grep -v "密码" | grep -v "凭证" | grep -v "/sk-\[a-zA-Z0-9\]" | grep -v "/ghp_\[a-zA-Z0-9\]" | grep -v "api_key\|apiKey\|token\|password\|secret\|OPENAI_API_KEY\|keywords"; then
           echo "⚠️ Found possible credentials"
-          echo "$FINDINGS"
           exit 1
         else
           echo "✅ No credentials found"
