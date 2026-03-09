@@ -7,6 +7,7 @@ const { execSync } = require('child_process')
 const { Command } = require('commander')
 const i18n = require('../utils/i18n')
 const { consoleStyler } = require('../utils/console-styler')
+const ConfigValidator = require('../utils/config-validator')
 /* eslint-enable no-console */
 
 /**
@@ -75,6 +76,11 @@ class DailyReportProjectCreator {
     // 6. 创建GitHub仓库
     if (options.createGitHub) {
       await this.createGitHubRepository(projectName, projectPath)
+    }
+
+    // 7. 配置验证（除非明确跳过）
+    if (!options.skipConfigValidation) {
+      await this.validateProjectConfiguration(projectPath)
     }
 
     this.console.success(this.i18n.t('project.created', { name: projectPath }))
@@ -291,22 +297,20 @@ class DailyReportProjectCreator {
     )
 
     // 2. 数据源配置模板
-    const sourcesTemplate = {
-      sources: [
-        {
-          name: '美团技术团队',
-          feed_url: 'https://tech.meituan.com/feed',
-          is_active: true,
-          category: '企业技术'
-        },
-        {
-          name: '字节跳动技术团队',
-          feed_url: 'https://techblog.toutiao.com/rss.xml',
-          is_active: true,
-          category: '企业技术'
-        }
-      ]
-    }
+    const sourcesTemplate = [
+      {
+        name: '美团技术团队',
+        feed_url: 'https://tech.meituan.com/feed',
+        is_active: true,
+        category: '企业技术'
+      },
+      {
+        name: '字节跳动技术团队',
+        feed_url: 'https://techblog.toutiao.com/rss.xml',
+        is_active: true,
+        category: '企业技术'
+      }
+    ]
 
     fs.writeFileSync(
       path.join(projectPath, 'config', 'sources.example.json'),
@@ -806,6 +810,114 @@ jobs:
       this.console.info(`请手动创建仓库: gh repo create ${repoName} --public`)
     }
   }
+
+  /**
+   * 验证项目配置
+   */
+  async validateProjectConfiguration (projectPath) {
+    this.console.info('🔍 验证项目配置...')
+
+    try {
+      const validator = new ConfigValidator(this.console)
+      const validationResult = await validator.validateProject(projectPath)
+
+      if (validationResult.success) {
+        this.console.success('🎉 项目配置验证通过！')
+        this.console.info('项目已准备就绪，可以开始使用。')
+
+        // 提供下一步指导
+        this.console.info('\n📋 下一步操作:')
+        this.console.info('1. 进入项目目录:')
+        this.console.info(`   cd ${projectPath}`)
+        this.console.info('2. 复制并编辑配置文件:')
+        this.console.info('   cp config/config.example.json config/config.json')
+        this.console.info('   cp .env.example .env')
+        this.console.info('   # 编辑配置文件，设置API密钥和数据源')
+        this.console.info('3. 运行系统:')
+        this.console.info('   npm run setup  # 安装依赖')
+        this.console.info('   node src/index.js --help  # 查看帮助')
+      } else {
+        this.console.warn('⚠️ 项目配置验证发现问题')
+        this.console.info(`发现 ${validationResult.errors.length} 个错误和 ${validationResult.warnings.length} 个警告`)
+
+        if (validationResult.errors.length > 0) {
+          this.console.info('请修复上述错误后再使用项目。')
+        }
+
+        // 尝试自动修复一些常见问题
+        await this.attemptAutoFix(projectPath, validationResult)
+      }
+    } catch (error) {
+      this.console.error('配置验证过程中发生错误:', error.message)
+      this.console.warn('项目已创建，但配置验证失败。请手动检查项目配置。')
+    }
+  }
+
+  /**
+   * 尝试自动修复问题
+   */
+  async attemptAutoFix (projectPath, validationResult) {
+    let fixedCount = 0
+
+    this.console.info('\n🔧 尝试自动修复...')
+
+    // 自动修复: 创建缺失的目录
+    const missingDirs = validationResult.errors.filter(error => error.includes('缺少必要文件或目录'))
+      .map(error => error.match(/缺少必要文件或目录: (.+)/)[1])
+      .filter(path => !path.includes('.')) // 只处理目录
+
+    missingDirs.forEach(dir => {
+      try {
+        const dirPath = path.join(projectPath, dir)
+        fs.mkdirSync(dirPath, { recursive: true })
+        this.console.success(`  ✅ 创建目录: ${dir}`)
+        fixedCount++
+      } catch (error) {
+        this.console.error(`  ❌ 无法创建目录 ${dir}: ${error.message}`)
+      }
+    })
+
+    // 自动修复: 安装缺失的依赖
+    const hasDependencyErrors = validationResult.errors.some(error =>
+      error.includes('依赖') || error.includes('node_modules')
+    )
+
+    if (hasDependencyErrors) {
+      try {
+        this.console.info('  🔄 尝试安装依赖...')
+        execSync('npm install --silent', {
+          cwd: projectPath,
+          stdio: 'pipe',
+          timeout: 120000 // 2分钟超时
+        })
+        this.console.success('  ✅ 依赖安装成功')
+        fixedCount++
+      } catch (error) {
+        this.console.error(`  ❌ 依赖安装失败: ${error.message}`)
+      }
+    }
+
+    if (fixedCount > 0) {
+      this.console.success(`🎉 成功修复 ${fixedCount} 个问题`)
+
+      // 重新验证
+      this.console.info('\n🔄 重新验证...')
+      try {
+        const validator = new ConfigValidator(this.console)
+        const newResult = await validator.validateProject(projectPath)
+
+        if (newResult.success) {
+          this.console.success('🎉 所有问题已修复！')
+        } else {
+          this.console.info(`还需要手动修复 ${newResult.errors.length} 个错误`)
+        }
+      } catch (error) {
+        this.console.error('重新验证失败:', error.message)
+      }
+    } else {
+      this.console.info('无法自动检测到可修复的问题')
+    }
+  }
 }
 
 // 命令行接口
@@ -820,6 +932,7 @@ if (require.main === module) {
     .option('-l, --lang <language>', '指定语言 (zh-CN, en-US, ja-JP, ko-KR)', 'zh-CN')
     .option('-t, --theme <theme>', '指定主题 (default, minimal, vibrant, professional, dark, colorful)', 'default')
     .option('--no-github', '不创建GitHub仓库')
+    .option('--skip-config-validation', '跳过配置验证')
     .action((projectName, options) => {
       // 检查是否为帮助请求
       if (projectName && (projectName === 'help' || projectName === '--help' || projectName === '-h')) {
@@ -831,7 +944,10 @@ if (require.main === module) {
       i18n.setLocale(options.lang)
 
       const creator = new DailyReportProjectCreator(i18n, options.theme)
-      creator.createProject(projectName, { createGitHub: options.github })
+      creator.createProject(projectName, {
+        createGitHub: options.github,
+        skipConfigValidation: options.skipConfigValidation
+      })
         .then(() => {
           creator.console.success(i18n.t('project.creation_complete'))
         })

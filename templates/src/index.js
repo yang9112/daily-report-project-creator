@@ -273,8 +273,8 @@ class TechDailyDigest {
       try {
         // 查找对应的数据库记录
         const existingArticles = await this.db.query(
-          'SELECT id FROM articles WHERE guid = ? OR link = ?',
-          [article.guid, article.link]
+          'SELECT id FROM articles WHERE link = ?',
+          [article.link]
         )
 
         if (existingArticles.length > 0) {

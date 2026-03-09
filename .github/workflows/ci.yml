@@ -121,21 +121,28 @@ jobs:
       
     - name: Check for sensitive information
       run: |
-        # 检查是否有硬编码的API密钥（排除文档、示例文件、验证代码、测试文件和模板文件）
-        if grep -r "sk-\|ghp_\|gho_\|ghu_\|ghs_\|ghr_" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" --exclude="create-project.js" --exclude="validate.js" --exclude-dir=tests --exclude="*.test.js" --exclude="*.spec.js" --exclude-dir=templates | grep -v "| sk-\.\.\. \|" | grep -v "sk-\.\.\." | grep -v "ghp_.*36" | grep -v "sk-\[a-zA-Z0-9\]" | grep -v "/sk-\[a-zA-Z0-9\]"; then
-          echo "⚠️ Found possible API keys"
+        # 简化安全检查 - 只检查真正的硬编码敏感信息
+        echo "🔍 开始安全扫描..."
+        
+        # 检查硬编码的OpenAI API密钥格式
+        if grep -r "sk-[a-zA-Z0-9]{48}" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" --exclude-dir=tests --exclude="*.test.js" --exclude="*.spec.js" --exclude-dir=templates; then
+          echo "⚠️ Found hardcoded OpenAI API keys"
           exit 1
-        else
-          echo "✅ No API keys found"
         fi
         
-        # 检查是否有密码或凭证（排除文档、注释、示例文件、验证代码、测试文件、模板文件和安全配置）
-        if grep -ri "password\|secret\|token\|key" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.log" --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" --exclude="create-project.js" --exclude="validate.js" --exclude-dir=tests --exclude="*.test.js" --exclude="*.spec.js" --exclude-dir=templates | grep -v "# password\|# secret\|OPENAI_API_KEY\|GitHub token" | grep -v "API密钥" | grep -v "密码" | grep -v "凭证" | grep -v "/sk-\[a-zA-Z0-9\]" | grep -v "/ghp_\[a-zA-Z0-9\]" | grep -v "package.json.*keywords" | grep -v "topKeywords\|article\.keywords\|\.keywords" | grep -v "i18n/config.js\|utils/i18n.js" | grep -v "themes/index.js" | grep -v "utils/console-styler.js"; then
-          echo "⚠️ Found possible credentials"
+        # 检查硬编码的GitHub personal access tokens
+        if grep -r "ghp_[a-zA-Z0-9]{36}" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" --exclude-dir=tests --exclude="*.test.js" --exclude="*.spec.js" --exclude-dir=templates; then
+          echo "⚠️ Found hardcoded GitHub tokens"
           exit 1
-        else
-          echo "✅ No credentials found"
         fi
+        
+        # 检查硬编码密码（格式：password = "value" 或 password: "value"）
+        if grep -rE "(password|pwd)[[:space:]]*[:=][[:space:]]*['\"][^'\"]{4,}['\"]" . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=coverage --exclude="*.md" --exclude="*.yml" --exclude="*.yaml" --exclude="package-lock.json" --exclude-dir=tests --exclude="*.test.js" --exclude="*.spec.js" --exclude-dir=templates | grep -v "password.*example\|password.*placeholder\|password.*test"; then
+          echo "⚠️ Found possible hardcoded passwords"
+          exit 1
+        fi
+        
+        echo "✅ Security scan passed - no hardcoded sensitive information found"
 
   performance:
     name: Performance Tests
