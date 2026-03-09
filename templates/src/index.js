@@ -106,6 +106,10 @@ class TechDailyDigest {
       database: {
         path: './data/daily-report.db'
       },
+      dashboard: {
+        enabled: true,
+        port: 3456
+      },
       schedule: {
         enabled: true,
         cron: '0 8 * * *' // 每天8点运行
@@ -376,6 +380,39 @@ class TechDailyDigest {
       }
     }
   }
+
+  /**
+   * 启动Web Dashboard
+   */
+  async startDashboard () {
+    // 延迟加载Dashboard模块以避免不必要的依赖
+    const DashboardServer = require('./dashboard/server')
+
+    await this.init()
+
+    const dashboard = new DashboardServer(this.config, this.db)
+
+    // 处理SIGTERM和SIGINT信号
+    process.on('SIGTERM', async () => {
+      console.log('\n📡 收到停止信号，正在关闭Dashboard...')
+      await dashboard.stop()
+      if (this.db) {
+        this.db.close()
+      }
+      process.exit(0)
+    })
+
+    process.on('SIGINT', async () => {
+      console.log('\n📡 收到中断信号，正在关闭Dashboard...')
+      await dashboard.stop()
+      if (this.db) {
+        this.db.close()
+      }
+      process.exit(0)
+    })
+
+    await dashboard.start()
+  }
 }
 
 // 命令行参数处理
@@ -402,6 +439,7 @@ async function main () {
   process                # 仅处理文章摘要
   generate [date]        # 仅生成日报 (可选日期，格式 YYYY-MM-DD)
   status                 # 查看系统状态
+  dashboard              # 启动Web Dashboard (端口3456)
   test                   # 测试AI连接
   cleanup [days]         # 清理旧数据 (默认保留90天)
 
@@ -411,6 +449,7 @@ async function main () {
   node index.js generate         # 生成今日报告
   node index.js generate 2024-01-15  # 生成指定日期报告
   node index.js status           # 查看状态
+  node index.js dashboard        # 启动Web Dashboard
   node index.js cleanup 30       # 清理30天前的数据
 `)
         break
@@ -433,6 +472,10 @@ async function main () {
 
       case 'status':
         await app.status()
+        break
+
+      case 'dashboard':
+        await app.startDashboard()
         break
 
       case 'test':
