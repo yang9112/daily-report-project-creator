@@ -604,7 +604,7 @@ class Database {
 
       const articlesCount = await new Promise((resolve, reject) => {
         this.db.get(
-          "SELECT COUNT(*) as count FROM articles WHERE date(published_at) = ?",
+          'SELECT COUNT(*) as count FROM articles WHERE date(published_at) = ?',
           [dateStr],
           (err, row) => {
             if (err) reject(err)
@@ -615,7 +615,7 @@ class Database {
 
       const reportsCount = await new Promise((resolve, reject) => {
         this.db.get(
-          "SELECT COUNT(*) as count FROM reports WHERE date = ?",
+          'SELECT COUNT(*) as count FROM reports WHERE date = ?',
           [dateStr],
           (err, row) => {
             if (err) reject(err)
