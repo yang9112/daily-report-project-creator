@@ -71,14 +71,18 @@ class DashboardServer {
    */
   async renderOverview (req, res) {
     try {
-      const stats = await this.db.getStatistics(7)
+      const period = parseInt(req.query.period) || 7
+      const stats = await this.db.getStatistics(period)
       const recentReports = await this.db.getReports(1, 5)
       const sourceStats = await this.db.getSourceStats()
+      const trend = await this.db.getStatisticsTrend(period)
 
       res.render('overview', {
         stats,
         recentReports,
         sourceStats,
+        trend,
+        period,
         title: '技术日报控制台'
       })
     } catch (error) {

@@ -30,6 +30,32 @@
       font-size: 24px;
       color: #409eff;
     }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .period-selector {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .period-selector span {
+      font-size: 14px;
+      color: #606266;
+    }
+    .period-selector select {
+      padding: 6px 12px;
+      border: 1px solid #dcdfe6;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #303133;
+      background: #fff;
+      cursor: pointer;
+    }
+    .period-selector select:hover {
+      border-color: #409eff;
+    }
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -41,6 +67,11 @@
       border-radius: 8px;
       padding: 24px;
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     }
     .stat-card h3 {
       font-size: 14px;
@@ -68,6 +99,9 @@
       font-size: 18px;
       margin-bottom: 20px;
       color: #303133;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .task-status {
       display: grid;
@@ -94,6 +128,7 @@
       height: 100%;
       background: #67c23a;
       border-radius: 4px;
+      transition: width 0.3s ease;
     }
     .task-item .progress-bar.warning {
       background: #e6a23c;
@@ -114,9 +149,17 @@
     .reports-list a {
       color: #409eff;
       text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .reports-list a:hover {
       text-decoration: underline;
+    }
+    .report-meta {
+      font-size: 12px;
+      color: #909399;
+      margin-left: auto;
     }
     .source-list {
       display: grid;
@@ -161,12 +204,95 @@
       color: #909399;
       font-size: 12px;
     }
+    /* Trend Chart Styles */
+    .trend-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 150px;
+      padding: 20px 0;
+    }
+    .trend-bar {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .trend-bar .bar-container {
+      width: 100%;
+      height: 100px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 4px;
+    }
+    .trend-bar .bar {
+      width: 12px;
+      border-radius: 4px 4px 0 0;
+      transition: height 0.3s ease;
+    }
+    .trend-bar .bar.articles {
+      background: #409eff;
+    }
+    .trend-bar .bar.reports {
+      background: #67c23a;
+    }
+    .trend-bar .label {
+      font-size: 11px;
+      color: #909399;
+    }
+    .trend-legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #606266;
+    }
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+    .empty-trend {
+      text-align: center;
+      padding: 40px;
+      color: #909399;
+    }
+    .refresh-btn {
+      padding: 8px 16px;
+      background: #409eff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .refresh-btn:hover {
+      background: #66b1ff;
+    }
   </style>
 </head>
 <body>
   <header>
     <div class="container">
-      <h1>📊 技术日报控制台</h1>
+      <div class="header-row">
+        <h1>📊 技术日报控制台</h1>
+        <div class="period-selector">
+          <span>统计周期:</span>
+          <select onchange="window.location.href='/?period='+this.value">
+            <option value="7" <%= period === 7 ? 'selected' : '' %>>最近7天</option>
+            <option value="30" <%= period === 30 ? 'selected' : '' %>>最近30天</option>
+            <option value="90" <%= period === 90 ? 'selected' : '' %>>最近90天</option>
+          </select>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -181,7 +307,7 @@
       <div class="stat-card">
         <h3>📰 文章总数</h3>
         <div class="value"><%= stats.totalArticles || 0 %></div>
-        <div class="label">最近7天采集</div>
+        <div class="label">最近<%= period %>天采集</div>
       </div>
       <div class="stat-card">
         <h3>✨ 精选文章</h3>
@@ -195,9 +321,44 @@
       </div>
       <div class="stat-card">
         <h3>📡 RSS源</h3>
-        <div class="value"><%= sourceStats.total || 0 %></div>
-        <div class="label">活跃: <%= sourceStats.active || 0 %></div>
+        <div class="value"><%= sourceStats.length || 0 %></div>
+        <div class="label">活跃: <%= sourceStats.filter(s => s.is_active).length || 0 %></div>
       </div>
+    </div>
+
+    <div class="section">
+      <h2>📈 数据趋势</h2>
+      <% if (trend && trend.length > 0) { %>
+        <%
+          const maxArticles = Math.max(...trend.map(t => t.articles), 1);
+          const maxReports = Math.max(...trend.map(t => t.reports), 1);
+        %>
+        <div class="trend-chart">
+          <% trend.forEach(day => { %>
+            <div class="trend-bar">
+              <div class="bar-container">
+                <div class="bar articles" style="height: <%= (day.articles / maxArticles) * 80 %>px;" title="文章: <%= day.articles %>"></div>
+                <div class="bar reports" style="height: <%= (day.reports / maxReports) * 80 %>px;" title="报告: <%= day.reports %>"></div>
+              </div>
+              <span class="label"><%= day.date.substring(5) %></span>
+            </div>
+          <% }) %>
+        </div>
+        <div class="trend-legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background: #409eff;"></div>
+            <span>文章数量</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #67c23a;"></div>
+            <span>报告数量</span>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="empty-trend">
+          <p>暂无趋势数据</p>
+        </div>
+      <% } %>
     </div>
 
     <div class="section">
@@ -205,9 +366,9 @@
       <div class="task-status">
         <div class="task-item">
           <h4>📥 采集任务</h4>
-          <div class="value"><%= sourceStats.active || 0 %>/<%= sourceStats.total || 0 %></div>
+          <div class="value"><%= sourceStats.filter(s => s.is_active).length %>/<%= sourceStats.length %></div>
           <div class="progress">
-            <div class="progress-bar" style="width: <%= sourceStats.total ? (sourceStats.active / sourceStats.total * 100) : 0 %>%"></div>
+            <div class="progress-bar" style="width: <%= sourceStats.length ? (sourceStats.filter(s => s.is_active).length / sourceStats.length * 100) : 0 %>%"></div>
           </div>
         </div>
         <div class="task-item">
@@ -247,9 +408,9 @@
 
     <div class="section">
       <h2>📡 RSS源状态</h2>
-      <% if (sourceStats.sources && sourceStats.sources.length > 0) { %>
+      <% if (sourceStats && sourceStats.length > 0) { %>
         <div class="source-list">
-          <% sourceStats.sources.forEach(source => { %>
+          <% sourceStats.forEach(source => { %>
             <div class="source-item">
               <span><%= source.name %></span>
               <span class="status <%= source.is_active ? '' : 'inactive' %>"></span>
