@@ -457,6 +457,182 @@ class Database {
     })
   }
 
+  // ===== Dashboard API Methods =====
+
+  /**
+   * 获取报告列表
+   */
+  async getReports (page = 1, limit = 20, startDate = null, endDate = null) {
+    const offset = (page - 1) * limit
+    let sql = 'SELECT * FROM reports'
+    const params = []
+    const conditions = []
+
+    if (startDate) {
+      conditions.push('date >= ?')
+      params.push(startDate)
+    }
+    if (endDate) {
+      conditions.push('date <= ?')
+      params.push(endDate)
+    }
+
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ')
+    }
+
+    sql += ' ORDER BY date DESC LIMIT ? OFFSET ?'
+    params.push(limit, offset)
+
+    return new Promise((resolve, reject) => {
+      this.db.all(sql, params, (err, rows) => {
+        if (err) reject(err)
+        else resolve(rows || [])
+      })
+    })
+  }
+
+  /**
+   * 获取报告总数
+   */
+  async getReportsCount (startDate = null, endDate = null) {
+    let sql = 'SELECT COUNT(*) as count FROM reports'
+    const params = []
+    const conditions = []
+
+    if (startDate) {
+      conditions.push('date >= ?')
+      params.push(startDate)
+    }
+    if (endDate) {
+      conditions.push('date <= ?')
+      params.push(endDate)
+    }
+
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ')
+    }
+
+    return new Promise((resolve, reject) => {
+      this.db.get(sql, params, (err, row) => {
+        if (err) reject(err)
+        else resolve(row ? row.count : 0)
+      })
+    })
+  }
+
+  /**
+   * 根据ID获取报告
+   */
+  async getReportById (id) {
+    return new Promise((resolve, reject) => {
+      this.db.get('SELECT * FROM reports WHERE id = ?', [id], (err, row) => {
+        if (err) reject(err)
+        else resolve(row || null)
+      })
+    })
+  }
+
+  /**
+   * 获取最新报告
+   */
+  async getLatestReport () {
+    return new Promise((resolve, reject) => {
+      this.db.get('SELECT * FROM reports ORDER BY date DESC LIMIT 1', [], (err, row) => {
+        if (err) reject(err)
+        else resolve(row || null)
+      })
+    })
+  }
+
+  /**
+   * 获取所有RSS源
+   */
+  async getSources () {
+    return new Promise((resolve, reject) => {
+      this.db.all('SELECT * FROM sources ORDER BY name', [], (err, rows) => {
+        if (err) reject(err)
+        else resolve(rows || [])
+      })
+    })
+  }
+
+  /**
+   * 根据ID获取源
+   */
+  async getSourceById (id) {
+    return new Promise((resolve, reject) => {
+      this.db.get('SELECT * FROM sources WHERE id = ?', [id], (err, row) => {
+        if (err) reject(err)
+        else resolve(row || null)
+      })
+    })
+  }
+
+  /**
+   * 获取最近的文章
+   */
+  async getRecentArticles (limit = 10) {
+    return new Promise((resolve, reject) => {
+      this.db.all('SELECT * FROM articles ORDER BY published_at DESC LIMIT ?', [limit], (err, rows) => {
+        if (err) reject(err)
+        else resolve(rows || [])
+      })
+    })
+  }
+
+  /**
+   * 根据源获取文章
+   */
+  async getArticlesBySource (sourceId, limit = 100) {
+    return new Promise((resolve, reject) => {
+      this.db.all('SELECT * FROM articles WHERE source_id = ? ORDER BY published_at DESC LIMIT ?', [sourceId, limit], (err, rows) => {
+        if (err) reject(err)
+        else resolve(rows || [])
+      })
+    })
+  }
+
+  /**
+   * 获取统计趋势
+   */
+  async getStatisticsTrend (days = 7) {
+    const result = []
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
+      const dateStr = date.toISOString().split('T')[0]
+
+      const articlesCount = await new Promise((resolve, reject) => {
+        this.db.get(
+          'SELECT COUNT(*) as count FROM articles WHERE date(published_at) = ?',
+          [dateStr],
+          (err, row) => {
+            if (err) reject(err)
+            else resolve(row ? row.count : 0)
+          }
+        )
+      })
+
+      const reportsCount = await new Promise((resolve, reject) => {
+        this.db.get(
+          'SELECT COUNT(*) as count FROM reports WHERE date = ?',
+          [dateStr],
+          (err, row) => {
+            if (err) reject(err)
+            else resolve(row ? row.count : 0)
+          }
+        )
+      })
+
+      result.push({
+        date: dateStr,
+        articles: articlesCount,
+        reports: reportsCount
+      })
+    }
+    return result
+  }
+
   close () {
     if (this.db) {
       this.db.close()
