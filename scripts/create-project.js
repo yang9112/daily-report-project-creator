@@ -187,7 +187,7 @@ class DailyReportProjectCreator {
       start: 'node src/index.js',
       test: 'jest',
       lint: 'eslint src/ --fix',
-      setup: 'npm install && cp config/config.example.json config/config.json',
+      setup: 'npm install',
       help: 'node src/index.js --help'
     }
 
@@ -402,14 +402,19 @@ npm install
 
 ### 2. 配置环境
 
-\`\`\`bash
-# 复制配置文件
-cp config/config.example.json config/config.json
-cp config/sources.example.json config/sources.json
-cp .env.example .env
+配置文件已在创建时自动生成位于 \`config/\` 目录。
 
-# 编辑配置文件，设置API密钥和数据源
+请编辑配置文件，设置API密钥和数据源：
+
+\`\`\`bash
+# 编辑环境变量
 vim .env
+
+# 编辑项目配置
+vim config/config.json
+
+# 编辑数据源配置
+vim config/sources.json
 \`\`\`
 
 ### 3. 运行系统

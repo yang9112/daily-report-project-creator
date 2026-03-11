@@ -121,15 +121,14 @@ npx daily-report-create
 ```
 
 ### 2. 配置项目
+配置文件已在创建时自动生成。进入项目目录后，直接编辑配置文件：
+
 ```bash
 cd my-project
 
-# 复制配置文件
-cp config/config.example.json config/config.json
-cp config/sources.example.json config/sources.json
-
 # 编辑配置
-nano config/config.json  # 设置API密钥
+nano .env  # 设置API密钥
+nano config/config.json  # 设置项目配置
 nano config/sources.json  # 配置RSS源
 ```
 
