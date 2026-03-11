@@ -1,6 +1,6 @@
 ---
-name: daily-report-skill-creator
-description: 基于KISS原则设计的技术博客自动采集和AI摘要系统，每日生成高质量技术阅读简报。
+name: tech-daily-digest
+description: 每日自动采集技术博客RSS并利用AI生成摘要的技术阅读简报系统。
 ---
 
 # 技术博客日报系统开源项目创建器 📰
