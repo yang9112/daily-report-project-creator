@@ -317,6 +317,17 @@ class DailyReportProjectCreator {
       JSON.stringify(sourcesTemplate, null, 2)
     )
 
+    // 自动创建实际配置文件（用户可直接使用）
+    fs.writeFileSync(
+      path.join(projectPath, 'config', 'config.json'),
+      JSON.stringify(configTemplate, null, 2)
+    )
+
+    fs.writeFileSync(
+      path.join(projectPath, 'config', 'sources.json'),
+      JSON.stringify(sourcesTemplate, null, 2)
+    )
+
     // 3. 环境变量模板
     const envTemplate = `# OpenAI API配置
 OPENAI_API_KEY=your-openai-api-key-here
@@ -335,6 +346,9 @@ LOG_FILE=./logs/app.log
 `
 
     fs.writeFileSync(path.join(projectPath, '.env.example'), envTemplate)
+
+    // 自动创建实际环境配置文件
+    fs.writeFileSync(path.join(projectPath, '.env'), envTemplate)
   }
 
   /**
