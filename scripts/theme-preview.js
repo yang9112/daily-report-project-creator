@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console */
+ 
 const { ConsoleStyler } = require('../utils/console-styler')
 const themeManager = require('../themes')
 const { Command } = require('commander')

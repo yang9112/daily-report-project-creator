@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console */
+ 
 const fs = require('fs')
 const path = require('path')
 const { Command } = require('commander')
 const DailyReportProjectCreator = require('./create-project')
 const i18n = require('../utils/i18n')
 const { consoleStyler } = require('../utils/console-styler')
-/* eslint-enable no-console */
+ 
 
 /**
  * 批量创建日报项目

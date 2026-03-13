@@ -55,10 +55,10 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
-    "eslint": "^8.57.0",
-    "eslint-config-standard": "^17.1.0",
+    "eslint": "^9.0.0",
+    "@eslint/js": "^9.0.0",
     "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-n": "^17.0.0",
     "eslint-plugin-promise": "^6.1.0",
     "jest": "^29.7.0",
     "supertest": "^6.3.4",
@@ -66,18 +66,6 @@
   },
   "engines": {
     "node": ">=16.0.0"
-  },
-  "eslintConfig": {
-    "extends": "standard",
-    "env": {
-      "node": true,
-      "jest": true
-    },
-    "rules": {
-      "no-console": "off",
-      "prefer-const": "error",
-      "no-var": "error"
-    }
   },
   "type": "commonjs"
 }
