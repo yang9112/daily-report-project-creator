@@ -1,5 +1,7 @@
 # Daily Report Project Creator
 
+[![CI](https://github.com/yang9112/daily-report-project-creator/actions/workflows/ci.yml/badge.svg)](https://github.com/yang9112/daily-report-project-creator/actions/workflows/ci.yml)
+
 🚀 自动化创建基于LLM的日报生成项目工具
 
 ## 功能特性
