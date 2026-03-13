@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console */
+ 
 const fs = require('fs')
 const path = require('path')
-/* eslint-enable no-console */
+ 
 
 /**
  * 项目验证脚本
@@ -253,7 +253,7 @@ class ProjectValidator {
         try {
           // 基本的语法检查 - 使用更安全的方式
           const vmModule = require('vm')
-          new vmModule.Script(content) // eslint-disable-line no-new
+          new vmModule.Script(content)  
           console.log(`  ✅ ${scriptFile} (语法正确)`)
         } catch (syntaxError) {
           console.log(`  ❌ ${scriptFile} (语法错误: ${syntaxError.message})`)

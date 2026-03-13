@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console */
+ 
 const fs = require('fs')
 const path = require('path')
 const { execSync } = require('child_process')
@@ -8,7 +8,7 @@ const { Command } = require('commander')
 const i18n = require('../utils/i18n')
 const { consoleStyler } = require('../utils/console-styler')
 const ConfigValidator = require('../utils/config-validator')
-/* eslint-enable no-console */
+ 
 
 /**
  * 基于tech-daily-digest创建新的日报项目
