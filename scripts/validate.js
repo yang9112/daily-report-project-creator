@@ -306,7 +306,7 @@ class ProjectValidator {
 
     const requiredDocs = [
       { file: 'README.md', required: true },
-      { file: 'Dockerfile', required: true },
+      // Dockerfile 已在 validateProjectStructure() 中检查，避免重复报错
       { file: 'references/project-structures.md', required: true }
     ]
 
