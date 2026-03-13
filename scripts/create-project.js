@@ -808,8 +808,8 @@ jobs:
     const repoName = `daily-report-${projectName}`
 
     try {
-      // 使用gh CLI创建仓库
-      execSync(`gh repo create ${repoName} --public --description="基于AI摘要的技术博客自动化日报系统" --clone=false`,
+      // 使用gh CLI创建仓库，指定初始分支为main
+      execSync(`gh repo create ${repoName} --public --description="基于AI摘要的技术博客自动化日报系统" --clone=false --initial-branch main`,
         { stdio: 'inherit' })
 
       // 添加远程仓库并推送
